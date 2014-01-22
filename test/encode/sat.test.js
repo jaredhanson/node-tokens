@@ -18,7 +18,7 @@ describe('encode.sat', function() {
     describe('encoding info', function() {
       var info = { subject: '1234',
                    audience: 'http://www.example.net/',
-                   expiration: new Date(1390309288) };
+                   expiresAt: new Date(1390309288) };
       var token = encode(info);
       
       it('should encode correctly', function() {

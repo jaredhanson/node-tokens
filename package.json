@@ -27,7 +27,9 @@
   "main": "./lib",
   "dependencies": {
     "moment": "2.x.x",
-    "jws": "0.2.x"
+    "request": "2.x.x",
+    "jws": "0.2.x",
+    "debug": "0.7.x"
   },
   "devDependencies": {
     "mocha": "1.x.x",

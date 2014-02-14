@@ -38,7 +38,8 @@ describe('decode.sat', function() {
       expect(Object.keys(claims)).to.have.length(3);
       
       expect(claims.issuer).to.equal('https://op.example.com/');
-      expect(claims.audience).to.equal('https://rp.example.com/');
+      expect(claims.audience).to.be.an('array');
+      expect(claims.audience[0]).to.equal('https://rp.example.com/');
       expect(claims.expiresAt).to.be.an.instanceOf(Date);
       expect(claims.expiresAt.getTime()).to.equal(7702588800000);
     });
@@ -73,7 +74,8 @@ describe('decode.sat', function() {
       expect(Object.keys(claims)).to.have.length(3);
       
       expect(claims.issuer).to.equal('https://op.example.com/');
-      expect(claims.audience).to.equal('https://rp.example.com/');
+      expect(claims.audience).to.be.an('array');
+      expect(claims.audience[0]).to.equal('https://rp.example.com/');
       expect(claims.expiresAt).to.be.an.instanceOf(Date);
       expect(claims.expiresAt.getTime()).to.equal(7702588800000);
     });
@@ -109,7 +111,8 @@ describe('decode.sat', function() {
       expect(Object.keys(claims)).to.have.length(4);
       
       expect(claims.issuer).to.equal('https://op.example.com/');
-      expect(claims.audience).to.equal('https://rp.example.com/');
+      expect(claims.audience).to.be.an('array');
+      expect(claims.audience[0]).to.equal('https://rp.example.com/');
       expect(claims.expiresAt).to.be.an.instanceOf(Date);
       expect(claims.expiresAt.getTime()).to.equal(7702588800000);
       expect(claims.authorizedPresenter).to.equal('https://client.example.net/');
@@ -146,7 +149,8 @@ describe('decode.sat', function() {
       expect(Object.keys(claims)).to.have.length(3);
       
       expect(claims.issuer).to.equal('https://op.example.com/');
-      expect(claims.audience).to.equal('https://rp.example.com/');
+      expect(claims.audience).to.be.an('array');
+      expect(claims.audience[0]).to.equal('https://rp.example.com/');
       expect(claims.expiresAt).to.be.an.instanceOf(Date);
       expect(claims.expiresAt.getTime()).to.equal(7702588800000);
     });
@@ -510,7 +514,8 @@ describe('decode.sat', function() {
         expect(Object.keys(claims)).to.have.length(3);
       
         expect(claims.issuer).to.equal('https://op.example.com/');
-        expect(claims.audience).to.equal('https://rp.example.com/');
+        expect(claims.audience).to.be.an('array');
+        expect(claims.audience[0]).to.equal('https://rp.example.com/');
         expect(claims.expiresAt).to.be.an.instanceOf(Date);
         expect(claims.expiresAt.getTime()).to.equal(7702588800000);
       });

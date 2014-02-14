@@ -481,7 +481,7 @@ describe('decode.sat', function() {
   
   describe('with audience list option', function() {
     
-    describe('decoding a valid SAT without type in JWT header', function() {
+    describe('decoding a valid SAT with audience that matches', function() {
       // header = { alg: 'RS256' }
       // body = { iss: 'https://op.example.com/',
       //          sub: 'mailto:bob@example.com',
@@ -513,6 +513,115 @@ describe('decode.sat', function() {
         expect(claims.audience).to.equal('https://rp.example.com/');
         expect(claims.expiresAt).to.be.an.instanceOf(Date);
         expect(claims.expiresAt.getTime()).to.equal(7702588800000);
+      });
+    });
+    
+    describe('decoding a valid SAT with one audience that matches', function() {
+      // header = { alg: 'RS256' }
+      // body = { iss: 'https://op.example.com/',
+      //          sub: 'mailto:bob@example.com',
+      //          aud: [ 'https://rp1.example.com/', 'https://rp2.example.com/' ],
+      //          exp: 7702588800 }
+      var data = 'eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL29wLmV4YW1wbGUuY29tLyIsInN1YiI6Im1haWx0bzpib2JAZXhhbXBsZS5jb20iLCJhdWQiOlsiaHR0cHM6Ly9ycDEuZXhhbXBsZS5jb20vIiwiaHR0cHM6Ly9ycDIuZXhhbXBsZS5jb20vIl0sImV4cCI6NzcwMjU4ODgwMH0.Gjj10zi22VQlgmIPPr6F7X9cI20ygufekO4JFWFsJ3OEMRZQEsgkqsLWM06wrQ3BYQ-gecO-KmpRY8D949C175PuQH9IfvfYoN5BdyZAQSe6-xmuPqSzYySFPQh5JVrBtVhGA0dwOIPA2474Cndq0wf6t4U-SWpcKiFqhAtssLw';
+      var claims;
+    
+      before(function(done) {
+        function keying(issuer, done) {
+          expect(issuer).to.equal('https://op.example.com/');
+        
+          return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
+        }
+        var decode = sat({ audience: [ 'https://rp1.example.com/', 'https://rp.example.com/' ] }, keying);
+      
+        decode(data, function(err, c) {
+          if (err) { return done(err); }
+          claims = c;
+          done();
+        });
+      });
+    
+      it('should decode token', function() {
+        expect(claims).to.be.an('object');
+        expect(Object.keys(claims)).to.have.length(3);
+      
+        expect(claims.issuer).to.equal('https://op.example.com/');
+        expect(claims.audience).to.be.an('array');
+        expect(claims.audience[0]).to.equal('https://rp1.example.com/');
+        expect(claims.audience[1]).to.equal('https://rp2.example.com/');
+        expect(claims.expiresAt).to.be.an.instanceOf(Date);
+        expect(claims.expiresAt.getTime()).to.equal(7702588800000);
+      });
+    });
+    
+    describe('decoding an invalid SAT due to audience mismatch', function() {
+      // header = { alg: 'RS256' }
+      // body = { iss: 'https://op.example.com/',
+      //          sub: 'mailto:bob@example.com',
+      //          aud: 'https://rpx.example.com/',
+      //          exp: 7702588800,
+      //          azp: 'https://client.example.net/' }
+      var data = 'eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL29wLmV4YW1wbGUuY29tLyIsInN1YiI6Im1haWx0bzpib2JAZXhhbXBsZS5jb20iLCJhdWQiOiJodHRwczovL3JweC5leGFtcGxlLmNvbS8iLCJleHAiOjc3MDI1ODg4MDAsImF6cCI6Imh0dHBzOi8vY2xpZW50LmV4YW1wbGUubmV0LyJ9.KYan0ZM01zW_ujIpBgmrI_vyweeHMz5rYeqxGCabNhu-MpIrN5jtzteUwae8EXEO-eDIzE3c0WJzVWJ100fsSzsWikmqdiz6moz-P23UZjiF2VeNcq-TlzmunPhL36lwMKas5sH473_r1zQRz768k3taxqHnKuoG-LTWxa8XjA8';
+      var claims, error;
+    
+      before(function(done) {
+        function keying(issuer, done) {
+          expect(issuer).to.equal('https://op.example.com/');
+        
+          return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
+        }
+        var decode = sat({ audience: [ 'https://rp1.example.com/', 'https://rp.example.com/' ] }, keying);
+      
+        decode(data, function(err, c) {
+          error = err;
+          claims = c;
+          done();
+        });
+      });
+    
+      it('should error', function() {
+        expect(error).to.be.an.instanceOf(Error);
+        expect(error.message).to.equal('Token not intended for this audience');
+        expect(error.code).to.equal('ENOTVALID');
+      });
+    
+      it('should not decode token', function() {
+        expect(claims).to.be.undefined;
+      });
+    });
+  
+    describe('decoding an invalid SAT due to audience list mismatch', function() {
+      // header = { alg: 'RS256' }
+      // body = { iss: 'https://op.example.com/',
+      //          sub: 'mailto:bob@example.com',
+      //          aud: [ 'https://rpx.example.com/', 'https://rpy.example.com/', 'https://rpz.example.com/' ],
+      //          exp: 7702588800,
+      //          azp: 'https://client.example.net/' }
+      var data = 'eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL29wLmV4YW1wbGUuY29tLyIsInN1YiI6Im1haWx0bzpib2JAZXhhbXBsZS5jb20iLCJhdWQiOlsiaHR0cHM6Ly9ycHguZXhhbXBsZS5jb20vIiwiaHR0cHM6Ly9ycHkuZXhhbXBsZS5jb20vIiwiaHR0cHM6Ly9ycHouZXhhbXBsZS5jb20vIl0sImV4cCI6NzcwMjU4ODgwMCwiYXpwIjoiaHR0cHM6Ly9jbGllbnQuZXhhbXBsZS5uZXQvIn0.AxstQhWamrWWXRGXVo-D6XdXfPuEqO5x8M35rvRVRCrA8sf4zKZOhk7PAXEtaRS7_9bb8B0gsIMAdjkL5pCdUi6PNlcx9gqo7WzWOd6-sV8mDGjFkIaqQT2jFaHIjohUmNquS9Vuy5j2ntOTt26kDO0Je_LzGjNpFW1SlJHQD4Q';
+      var claims, error;
+    
+      before(function(done) {
+        function keying(issuer, done) {
+          expect(issuer).to.equal('https://op.example.com/');
+        
+          return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
+        }
+        var decode = sat({ audience: [ 'https://rp1.example.com/', 'https://rp.example.com/' ] }, keying);
+      
+        decode(data, function(err, c) {
+          error = err;
+          claims = c;
+          done();
+        });
+      });
+    
+      it('should error', function() {
+        expect(error).to.be.an.instanceOf(Error);
+        expect(error.message).to.equal('Token not intended for this audience');
+        expect(error.code).to.equal('ENOTVALID');
+      });
+    
+      it('should not decode token', function() {
+        expect(claims).to.be.undefined;
       });
     });
     

@@ -109,4 +109,94 @@ describe('decode.sat', function() {
     });
   });
   
+  describe('decoding an invalid SAT due to missing sub claim', function() {
+    var data = 'eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL29wLmV4YW1wbGUuY29tLyIsImF1ZCI6Imh0dHBzOi8vcnAuZXhhbXBsZS5jb20vIiwiZXhwIjo3NzAyNTg4ODAwfQ.OR1DUc8DFeedLOPvWV_6gTyFLYgbwaqDWn6nryoq4Q9phfnC3Hd7W1KGmTzjR6WTFnEiNCfddH_XBirZnkXB29nVOtGAclbEbhA0Q7lpuCZYw0XY6Y3X9_5NhubvsbCVUCaN8qZET1nZGtSsl_1Lpd5NUBCgg36e9QgBbvE8Fow';
+    var claims, error;
+    
+    before(function(done) {
+      function keying(issuer, done) {
+        expect(issuer).to.equal('https://op.example.com/');
+        
+        return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
+      }
+      var decode = sat({ audience: 'https://rp.example.com/' }, keying);
+      
+      decode(data, function(err, c) {
+        error = err;
+        claims = c;
+        done();
+      });
+    });
+    
+    it('should error', function() {
+      expect(error).to.be.an.instanceOf(Error);
+      expect(error.message).to.equal('Token missing required claim: sub');
+      expect(error.code).to.equal('ENOTVALID');
+    });
+    
+    it('should not decode token', function() {
+      expect(claims).to.be.undefined;
+    });
+  });
+  
+  describe('decoding an invalid SAT due to missing aud claim', function() {
+    var data = 'eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL29wLmV4YW1wbGUuY29tLyIsInN1YiI6Im1haWx0bzpib2JAZXhhbXBsZS5jb20iLCJleHAiOjc3MDI1ODg4MDB9.ATccuoB6C6djyeH7tDVdZNpni2UPuu7at6M3svCy4FswpVn8rNFPf6h0tNsP4WbIk6GHBWD23QGEv2FtMP3xOCcn04SDgHhGByVJqjgiDPK5PtKZ6vtdLhHoUWBSuWaWrGjbFUv0WP73bUmt2SBAxw_iwYJOAzabujgpTW7-kHc';
+    var claims, error;
+    
+    before(function(done) {
+      function keying(issuer, done) {
+        expect(issuer).to.equal('https://op.example.com/');
+        
+        return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
+      }
+      var decode = sat({ audience: 'https://rp.example.com/' }, keying);
+      
+      decode(data, function(err, c) {
+        error = err;
+        claims = c;
+        done();
+      });
+    });
+    
+    it('should error', function() {
+      expect(error).to.be.an.instanceOf(Error);
+      expect(error.message).to.equal('Token missing required claim: aud');
+      expect(error.code).to.equal('ENOTVALID');
+    });
+    
+    it('should not decode token', function() {
+      expect(claims).to.be.undefined;
+    });
+  });
+  
+  describe('decoding an invalid SAT due to missing exp claim', function() {
+    var data = 'eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL29wLmV4YW1wbGUuY29tLyIsInN1YiI6Im1haWx0bzpib2JAZXhhbXBsZS5jb20iLCJhdWQiOiJodHRwczovL3JwLmV4YW1wbGUuY29tLyJ9.FcgA2ZMu0AiAmtJMLWs9Hg5SbYH2dbGFYfMWy6nf-6VQMFmVks2u2UdOPXZQ3VVfXm_DMsDZgTX92lUDgD4v-ZuW-ZtehpnBsSMf5g8rgo5kKbuOvv7K0R5mmIdDtmpKvTd0GrkSrLzQkjGbuosQVaz-McEnvNNOHVYFXuCwmk8';
+    var claims, error;
+    
+    before(function(done) {
+      function keying(issuer, done) {
+        expect(issuer).to.equal('https://op.example.com/');
+        
+        return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
+      }
+      var decode = sat({ audience: 'https://rp.example.com/' }, keying);
+      
+      decode(data, function(err, c) {
+        error = err;
+        claims = c;
+        done();
+      });
+    });
+    
+    it('should error', function() {
+      expect(error).to.be.an.instanceOf(Error);
+      expect(error.message).to.equal('Token missing required claim: exp');
+      expect(error.code).to.equal('ENOTVALID');
+    });
+    
+    it('should not decode token', function() {
+      expect(claims).to.be.undefined;
+    });
+  });
+  
 });

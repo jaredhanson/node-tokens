@@ -79,6 +79,77 @@ describe('decode.sat', function() {
     });
   });
   
+  describe('decoding a valid SAT that contains an acceptable nbf claim', function() {
+    // header = { alg: 'RS256' }
+    // body = { iss: 'https://op.example.com/',
+    //          sub: 'mailto:bob@example.com',
+    //          aud: 'https://rp.example.com/',
+    //          exp: 7702588800,
+    //          nbf: 1328083200 }
+    var data = 'eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL29wLmV4YW1wbGUuY29tLyIsInN1YiI6Im1haWx0bzpib2JAZXhhbXBsZS5jb20iLCJhdWQiOiJodHRwczovL3JwLmV4YW1wbGUuY29tLyIsImV4cCI6NzcwMjU4ODgwMCwibmJmIjoxMzI4MDgzMjAwfQ.LSHYY8zYG385AZnFTLSGnFSGZDHjKTROqruyk9cvTeicDGp7L0izGCCqFfC-gP7g3LvwUmErOLOMuvLnNIl8iRpCM0xNjJ0B6qyT5ISr2AW8uVJIeqiIuGyQj6jkJ1CQzv5uWD8zNsGnzYDWzKCyxpCpXpY7_u_daXy31TX03CY';
+    var claims;
+    
+    before(function(done) {
+      function keying(issuer, done) {
+        expect(issuer).to.equal('https://op.example.com/');
+        
+        return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
+      }
+      var decode = sat({ audience: 'https://rp.example.com/' }, keying);
+      
+      decode(data, function(err, c) {
+        if (err) { return done(err); }
+        claims = c;
+        done();
+      });
+    });
+    
+    it('should decode token', function() {
+      expect(claims).to.be.an('object');
+      expect(Object.keys(claims)).to.have.length(3);
+      
+      expect(claims.issuer).to.equal('https://op.example.com/');
+      expect(claims.audience).to.equal('https://rp.example.com/');
+      expect(claims.expiresAt).to.be.an.instanceOf(Date);
+      expect(claims.expiresAt.getTime()).to.equal(7702588800000);
+    });
+  });
+  
+  describe('decoding an invalid SAT due to invalid signature', function() {
+    // header = { alg: 'RS256' }
+    // body = { iss: 'https://op.example.com/',
+    //          sub: 'mailto:bob@example.com',
+    //          aud: 'https://rp.example.com/',
+    //          exp: 7702588800 }
+    var data = 'eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL29wLmV4YW1wbGUuY29tLyIsInN1YiI6Im1haWx0bzpib2JAZXhhbXBsZS5jb20iLCJhdWQiOiJodHRwczovL3JwLmV4YW1wbGUuY29tLyIsImV4cCI6NzcwMjU4ODgwMH0.ZwLZxuaTnxM74q6QO3JRNuruviw1rZDTETNyPNH7EJ-KOnmEWeVNJhhkncrgNIJO0cbDakW2XVUWeiviYtXQMV0Yyp78uCXM6WB5b7w2i_3Z77rOic2YMnDr0qYBG-hvPdHZ05W_WkOMhEbWZZadWjkdVnbJ2ZzjdHdMStFxcAX';
+    var claims, error;
+    
+    before(function(done) {
+      function keying(issuer, done) {
+        expect(issuer).to.equal('https://op.example.com/');
+        
+        return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
+      }
+      var decode = sat({ audience: 'https://rp.example.com/' }, keying);
+      
+      decode(data, function(err, c) {
+        error = err;
+        claims = c;
+        done();
+      });
+    });
+    
+    it('should error', function() {
+      expect(error).to.be.an.instanceOf(Error);
+      expect(error.message).to.equal('Token signature invalid');
+      expect(error.code).to.equal('ENOTVALID');
+    });
+    
+    it('should not decode token', function() {
+      expect(claims).to.be.undefined;
+    });
+  });
+  
   describe('decoding an invalid SAT due to missing iss claim', function() {
     var data = 'eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJtYWlsdG86Ym9iQGV4YW1wbGUuY29tIiwiYXVkIjoiaHR0cHM6Ly9ycC5leGFtcGxlLmNvbS8iLCJleHAiOjc3MDI1ODg4MDB9.VrDaygaaE-ycWwEQfEe3SdZ7sgcSbSYd0PQ_Z88UF3l3ycp8cvVNStTHaUD9sxpqJN2iV8lgQ2nfa4Ts3l-1g3SWtDcRlo82P_SrmXRaSkw2bL9cv9iwSF238d5DK1Vdu3RtMxcbrgBzhRJj0UlggErj5c9KjN9qmP2oP2kjUKc';
     var claims, error;
@@ -191,6 +262,66 @@ describe('decode.sat', function() {
     it('should error', function() {
       expect(error).to.be.an.instanceOf(Error);
       expect(error.message).to.equal('Token missing required claim: exp');
+      expect(error.code).to.equal('ENOTVALID');
+    });
+    
+    it('should not decode token', function() {
+      expect(claims).to.be.undefined;
+    });
+  });
+  
+  describe('decoding an invalid SAT due to being expired', function() {
+    var data = 'eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL29wLmV4YW1wbGUuY29tLyIsInN1YiI6Im1haWx0bzpib2JAZXhhbXBsZS5jb20iLCJhdWQiOiJodHRwczovL3JwLmV4YW1wbGUuY29tLyIsImV4cCI6OTE3ODU2MDAwfQ.V8zlO3A6WLN1oAekhYfOKHltxoaTF-PZY-5vH-aWHTzOfjWSamG5F48Ytc2yKWzBuq48ySAruB6f0Kh_7MWnWUDyz0erXPJSHAYHUmq_oo121pyb6-7RjKZrpD8MDCrsjEkREHZOJFWjhWWnpydC8OVmXWk197uaf4NxhzEhjOg';
+    var claims, error;
+    
+    before(function(done) {
+      function keying(issuer, done) {
+        expect(issuer).to.equal('https://op.example.com/');
+        
+        return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
+      }
+      var decode = sat({ audience: 'https://rp.example.com/' }, keying);
+      
+      decode(data, function(err, c) {
+        error = err;
+        claims = c;
+        done();
+      });
+    });
+    
+    it('should error', function() {
+      expect(error).to.be.an.instanceOf(Error);
+      expect(error.message).to.equal('Token expired');
+      expect(error.code).to.equal('ENOTVALID');
+    });
+    
+    it('should not decode token', function() {
+      expect(claims).to.be.undefined;
+    });
+  });
+  
+  describe('decoding an invalid SAT due to being not yet acceptable', function() {
+    var data = 'eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL29wLmV4YW1wbGUuY29tLyIsInN1YiI6Im1haWx0bzpib2JAZXhhbXBsZS5jb20iLCJhdWQiOiJodHRwczovL3JwLmV4YW1wbGUuY29tLyIsImV4cCI6NzcwMjU4ODgwMCwibmJmIjo3NjcxMDUyODAwfQ.pnMRenhW2uN8XU1BZ4KPPReMob4ddt0Jk1P9sfd60KxZOoCcLhkDuD3Ay1CjX2FCR9Tk-vEb_w2lA_h3Ifebij_rhJ49acZmB0XWQE_O6G7ubewzBCc6_jYfybMgMx6nl7AyRaXYcOTP9-blWsDWJ328cm1bSKCnyXMbVP_oRwM';
+    var claims, error;
+    
+    before(function(done) {
+      function keying(issuer, done) {
+        expect(issuer).to.equal('https://op.example.com/');
+        
+        return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
+      }
+      var decode = sat({ audience: 'https://rp.example.com/' }, keying);
+      
+      decode(data, function(err, c) {
+        error = err;
+        claims = c;
+        done();
+      });
+    });
+    
+    it('should error', function() {
+      expect(error).to.be.an.instanceOf(Error);
+      expect(error.message).to.equal('Token not yet acceptable');
       expect(error.code).to.equal('ENOTVALID');
     });
     

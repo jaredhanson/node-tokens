@@ -1,9 +1,12 @@
+#!/usr/bin/env node
+
 var jws = require('jws')
   , fs = require('fs');
 
 
 var payload = {
   iss: 'https://op.example.com/',
+  sub: 'mailto:bob@example.com',
   aud: 'https://rp.example.com/',
   exp: Math.floor(new Date(2214, 01, 01).getTime() / 1000)
 };

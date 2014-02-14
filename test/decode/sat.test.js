@@ -12,9 +12,10 @@ describe('decode.sat', function() {
   describe('decoding an access token', function() {
     // header = { alg: 'RS256' }
     // body = { iss: 'https://op.example.com/',
+    //          sub: 'mailto:bob@example.com',
     //          aud: 'https://rp.example.com/',
     //          exp: 7702588800 }
-    var data = 'eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL29wLmV4YW1wbGUuY29tLyIsImF1ZCI6Imh0dHBzOi8vcnAuZXhhbXBsZS5jb20vIiwiZXhwIjo3NzAyNTg4ODAwfQ.OR1DUc8DFeedLOPvWV_6gTyFLYgbwaqDWn6nryoq4Q9phfnC3Hd7W1KGmTzjR6WTFnEiNCfddH_XBirZnkXB29nVOtGAclbEbhA0Q7lpuCZYw0XY6Y3X9_5NhubvsbCVUCaN8qZET1nZGtSsl_1Lpd5NUBCgg36e9QgBbvE8Fow';
+    var data = 'eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL29wLmV4YW1wbGUuY29tLyIsInN1YiI6Im1haWx0bzpib2JAZXhhbXBsZS5jb20iLCJhdWQiOiJodHRwczovL3JwLmV4YW1wbGUuY29tLyIsImV4cCI6NzcwMjU4ODgwMH0.ZwLZxuaTnxM74q6QO3JRNuruviw1rZDTETNyPNH7EJ-KOnmEWeVNJhhkncrgNIJO0cbDakW2XVUWeiviYtXQMV0Yyp78uCXM6WB5b7w2i_3Z77rOic2YMnDr0qYBG-hvPdHZ05W_WkOMhEbWZZadWjkdVnbJ2ZzjdHdMStFxcA0';
     var claims;
     
     before(function(done) {
@@ -23,7 +24,7 @@ describe('decode.sat', function() {
         
         return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
       }
-      var decode = sat(keying);
+      var decode = sat({ audience: 'https://rp.example.com/' }, keying);
       
       decode(data, function(err, c) {
         if (err) { return done(err); }

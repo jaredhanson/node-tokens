@@ -79,6 +79,43 @@ describe('decode.sat', function() {
     });
   });
   
+  describe('decoding a valid SAT that contains an azp claim', function() {
+    // header = { alg: 'RS256' }
+    // body = { iss: 'https://op.example.com/',
+    //          sub: 'mailto:bob@example.com',
+    //          aud: 'https://rp.example.com/',
+    //          exp: 7702588800,
+    //          azp: 'https://client.example.net/' }
+    var data = 'eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL29wLmV4YW1wbGUuY29tLyIsInN1YiI6Im1haWx0bzpib2JAZXhhbXBsZS5jb20iLCJhdWQiOiJodHRwczovL3JwLmV4YW1wbGUuY29tLyIsImV4cCI6NzcwMjU4ODgwMCwiYXpwIjoiaHR0cHM6Ly9jbGllbnQuZXhhbXBsZS5uZXQvIn0.FuBECPuYlCwb8Z9xGnc3gb4qbsi4-bxLf2lFx258mTNP4E46Y7SCRUNHiumlo1DIR3Q6_izJrCeee1eSszFzEcbxaXWrr0-Wcv7UOvBpBPbtXSB0J9k5p8opKDRlKR6C8PsieAHcyW8x3tbedXm1xnlt-_SeGTmSnOW7H5Neo6c';
+    var claims;
+    
+    before(function(done) {
+      function keying(issuer, done) {
+        expect(issuer).to.equal('https://op.example.com/');
+        
+        return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
+      }
+      var decode = sat({ audience: 'https://rp.example.com/' }, keying);
+      
+      decode(data, function(err, c) {
+        if (err) { return done(err); }
+        claims = c;
+        done();
+      });
+    });
+    
+    it('should decode token', function() {
+      expect(claims).to.be.an('object');
+      expect(Object.keys(claims)).to.have.length(4);
+      
+      expect(claims.issuer).to.equal('https://op.example.com/');
+      expect(claims.audience).to.equal('https://rp.example.com/');
+      expect(claims.expiresAt).to.be.an.instanceOf(Date);
+      expect(claims.expiresAt.getTime()).to.equal(7702588800000);
+      expect(claims.authorizedPresenter).to.equal('https://client.example.net/');
+    });
+  });
+  
   describe('decoding a valid SAT that contains an acceptable nbf claim', function() {
     // header = { alg: 'RS256' }
     // body = { iss: 'https://op.example.com/',

@@ -41,9 +41,10 @@ describe('decode.sat', function() {
     
     it('should decode token', function() {
       expect(claims).to.be.an('object');
-      expect(Object.keys(claims)).to.have.length(3);
+      expect(Object.keys(claims)).to.have.length(4);
       
       expect(claims.issuer).to.equal('https://op.example.com/');
+      expect(claims.subject).to.equal('mailto:bob@example.com');
       expect(claims.audience).to.be.an('array');
       expect(claims.audience[0]).to.equal('https://rp.example.com/');
       expect(claims.expiresAt).to.be.an.instanceOf(Date);
@@ -77,9 +78,10 @@ describe('decode.sat', function() {
     
     it('should decode token', function() {
       expect(claims).to.be.an('object');
-      expect(Object.keys(claims)).to.have.length(3);
+      expect(Object.keys(claims)).to.have.length(4);
       
       expect(claims.issuer).to.equal('https://op.example.com/');
+      expect(claims.subject).to.equal('mailto:bob@example.com');
       expect(claims.audience).to.be.an('array');
       expect(claims.audience[0]).to.equal('https://rp.example.com/');
       expect(claims.expiresAt).to.be.an.instanceOf(Date);
@@ -114,9 +116,10 @@ describe('decode.sat', function() {
     
     it('should decode token', function() {
       expect(claims).to.be.an('object');
-      expect(Object.keys(claims)).to.have.length(4);
+      expect(Object.keys(claims)).to.have.length(5);
       
       expect(claims.issuer).to.equal('https://op.example.com/');
+      expect(claims.subject).to.equal('mailto:bob@example.com');
       expect(claims.audience).to.be.an('array');
       expect(claims.audience[0]).to.equal('https://rp.example.com/');
       expect(claims.expiresAt).to.be.an.instanceOf(Date);
@@ -152,9 +155,10 @@ describe('decode.sat', function() {
     
     it('should decode token', function() {
       expect(claims).to.be.an('object');
-      expect(Object.keys(claims)).to.have.length(3);
+      expect(Object.keys(claims)).to.have.length(4);
       
       expect(claims.issuer).to.equal('https://op.example.com/');
+      expect(claims.subject).to.equal('mailto:bob@example.com');
       expect(claims.audience).to.be.an('array');
       expect(claims.audience[0]).to.equal('https://rp.example.com/');
       expect(claims.expiresAt).to.be.an.instanceOf(Date);
@@ -190,9 +194,10 @@ describe('decode.sat', function() {
     
     it('should decode token', function() {
       expect(claims).to.be.an('object');
-      expect(Object.keys(claims)).to.have.length(3);
+      expect(Object.keys(claims)).to.have.length(4);
       
       expect(claims.issuer).to.equal('https://op.example.com/');
+      expect(claims.subject).to.equal('mailto:bob@example.com');
       expect(claims.audience).to.be.an('array');
       expect(claims.audience[0]).to.equal('https://rp.example.com/');
       expect(claims.expiresAt).to.be.an.instanceOf(Date);
@@ -758,9 +763,10 @@ describe('decode.sat', function() {
     
       it('should decode token', function() {
         expect(claims).to.be.an('object');
-        expect(Object.keys(claims)).to.have.length(3);
+        expect(Object.keys(claims)).to.have.length(4);
       
         expect(claims.issuer).to.equal('https://op.example.com/');
+        expect(claims.subject).to.equal('mailto:bob@example.com');
         expect(claims.audience).to.be.an('array');
         expect(claims.audience[0]).to.equal('https://rp.example.com/');
         expect(claims.expiresAt).to.be.an.instanceOf(Date);
@@ -794,9 +800,10 @@ describe('decode.sat', function() {
     
       it('should decode token', function() {
         expect(claims).to.be.an('object');
-        expect(Object.keys(claims)).to.have.length(3);
+        expect(Object.keys(claims)).to.have.length(4);
       
         expect(claims.issuer).to.equal('https://op.example.com/');
+        expect(claims.subject).to.equal('mailto:bob@example.com');
         expect(claims.audience).to.be.an('array');
         expect(claims.audience[0]).to.equal('https://rp1.example.com/');
         expect(claims.audience[1]).to.equal('https://rp2.example.com/');

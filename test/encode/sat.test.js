@@ -5,8 +5,8 @@ var sat = require('../../lib/encode/sat')
 
 describe('encode.sat', function() {
   
-  it('should be named sat', function() {
-    expect(sat().name).to.equal('sat');
+  it('should export generator', function() {
+    expect(sat).to.be.a('function');
   });
   
   describe('default algorithm', function() {
@@ -19,7 +19,13 @@ describe('encode.sat', function() {
       var info = { subject: '1234',
                    audience: 'http://www.example.net/',
                    expiresAt: new Date(1390309288) };
-      var token = encode(info);
+      var token;
+      before(function(done){
+        encode(info, function(err, tok){
+          token = tok;
+          done(err);
+        });
+      });
       
       it('should encode correctly', function() {
         expect(token.length).to.equal(356);
@@ -44,7 +50,21 @@ describe('encode.sat', function() {
         expect(ok).to.be.true;
       });
     });
-    
+
+    describe('error with bad payload', function() {
+      var token, error;
+      before(function(done){
+        encode({}, function(err, tok){
+          token = tok;
+          error = err;
+          done();
+        });
+      });
+      
+      it('should error', function() {
+        expect(error.toString()).to.equal("NotValidError: Structured access token requires a subject claim");
+      });
+    });
   });
   
 });

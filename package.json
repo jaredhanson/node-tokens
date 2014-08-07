@@ -1,6 +1,6 @@
 {
   "name": "tokens",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Encode and decode security tokens.",
   "keywords": [
     "oauth",

@@ -374,7 +374,7 @@ describe('decode.sat', function() {
     
     it('should error', function() {
       expect(error).to.be.an.instanceOf(Error);
-      expect(error.message).to.equal('Token not intended for this audience');
+      expect(error.message).to.equal('Token audience of https://rpx.example.com/ not found in https://rp.example.com/');
       expect(error.code).to.equal('ENOTVALID');
     });
     
@@ -410,7 +410,7 @@ describe('decode.sat', function() {
     
     it('should error', function() {
       expect(error).to.be.an.instanceOf(Error);
-      expect(error.message).to.equal('Token not intended for this audience');
+      expect(error.message).to.equal('Token audience of https://rpx.example.com/,https://rpy.example.com/,https://rpz.example.com/ not found in https://rp.example.com/');
       expect(error.code).to.equal('ENOTVALID');
     });
     
@@ -724,7 +724,7 @@ describe('decode.sat', function() {
     
       it('should error', function() {
         expect(error).to.be.an.instanceOf(Error);
-        expect(error.message).to.equal('Token not intended for this audience');
+        expect(error.message).to.equal('Token audience of https://rp.example.com/ not found in ');
         expect(error.code).to.equal('ENOTVALID');
       });
     
@@ -839,7 +839,7 @@ describe('decode.sat', function() {
     
       it('should error', function() {
         expect(error).to.be.an.instanceOf(Error);
-        expect(error.message).to.equal('Token not intended for this audience');
+        expect(error.message).to.equal('Token audience of https://rpx.example.com/ not found in https://rp1.example.com/,https://rp.example.com/');
         expect(error.code).to.equal('ENOTVALID');
       });
     
@@ -875,7 +875,7 @@ describe('decode.sat', function() {
     
       it('should error', function() {
         expect(error).to.be.an.instanceOf(Error);
-        expect(error.message).to.equal('Token not intended for this audience');
+        expect(error.message).to.equal('Token audience of https://rpx.example.com/,https://rpy.example.com/,https://rpz.example.com/ not found in https://rp1.example.com/,https://rp.example.com/');
         expect(error.code).to.equal('ENOTVALID');
       });
     

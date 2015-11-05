@@ -369,6 +369,47 @@ describe('decode.sat', function() {
     });
   });
   
+  describe('decoding a valid SAT that contains a claims claim', function() {
+    // header = { alg: 'RS256' }
+    // body = { iss: 'https://op.example.com/',
+    //          sub: 'mailto:bob@example.com',
+    //          aud: 'https://rp.example.com/',
+    //          exp: 7702588800,
+    //          claims: [ 'gender', 'picture' ] }
+    var data = 'eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL29wLmV4YW1wbGUuY29tLyIsInN1YiI6Im1haWx0bzpib2JAZXhhbXBsZS5jb20iLCJhdWQiOiJodHRwczovL3JwLmV4YW1wbGUuY29tLyIsImV4cCI6NzcwMjU4ODgwMCwiY2xhaW1zIjpbImdlbmRlciIsInBpY3R1cmUiXX0.ZchfdE2DvdqdLU-X_OJqFDW0vHGQov6GNqySPzhFfVT8AuWwa6-yvYd9cKb9kwXpu4ZPSeHfigyRR34EogbGFCAouRir3byIrECki14g_vnKcyc_TwErh-bLF7CTtcOeE_NqJMhaGcY82DXow_TQDseqBDhueUsXIYh6M0kw5vU';
+    var claims;
+    
+    before(function(done) {
+      function keying(issuer, done) {
+        expect(issuer).to.equal('https://op.example.com/');
+        
+        return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
+      }
+      var decode = sat({ audience: 'https://rp.example.com/' }, keying);
+      
+      decode(data, function(err, c) {
+        if (err) { return done(err); }
+        claims = c;
+        done();
+      });
+    });
+    
+    it('should decode token', function() {
+      expect(claims).to.be.an('object');
+      expect(Object.keys(claims)).to.have.length(5);
+      
+      expect(claims.issuer).to.equal('https://op.example.com/');
+      expect(claims.subject).to.equal('mailto:bob@example.com');
+      expect(claims.audience).to.be.an('array');
+      expect(claims.audience[0]).to.equal('https://rp.example.com/');
+      expect(claims.expiresAt).to.be.an.instanceOf(Date);
+      expect(claims.expiresAt.getTime()).to.equal(7702588800000);
+      expect(claims.claims).to.be.an('array');
+      expect(claims.claims[0]).to.equal('gender');
+      expect(claims.claims[1]).to.equal('picture');
+    });
+  });
+  
   describe('decoding a valid SAT using header values', function() {
     // header = { alg: 'RS256' }
     // body = { iss: 'https://op.example.com/',

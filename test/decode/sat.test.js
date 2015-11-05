@@ -126,6 +126,48 @@ describe('decode.sat', function() {
     });
   });
   
+  describe('decoding a valid SAT that contains an audience list claim', function() {
+    // header = { alg: 'RS256' }
+    // body = { iss: 'https://op.example.com/',
+    //          sub: 'mailto:bob@example.com',
+    //          aud: [ 'https://rpx.example.com/', 'https://rpy.example.com/', 'https://rpz.example.com/' ],
+    //          exp: 7702588800,
+    //          azp: 'https://client.example.net/' }
+    var data = 'eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL29wLmV4YW1wbGUuY29tLyIsInN1YiI6Im1haWx0bzpib2JAZXhhbXBsZS5jb20iLCJhdWQiOlsiaHR0cHM6Ly9ycHguZXhhbXBsZS5jb20vIiwiaHR0cHM6Ly9ycHkuZXhhbXBsZS5jb20vIiwiaHR0cHM6Ly9ycHouZXhhbXBsZS5jb20vIl0sImV4cCI6NzcwMjU4ODgwMCwiYXpwIjoiaHR0cHM6Ly9jbGllbnQuZXhhbXBsZS5uZXQvIn0.AxstQhWamrWWXRGXVo-D6XdXfPuEqO5x8M35rvRVRCrA8sf4zKZOhk7PAXEtaRS7_9bb8B0gsIMAdjkL5pCdUi6PNlcx9gqo7WzWOd6-sV8mDGjFkIaqQT2jFaHIjohUmNquS9Vuy5j2ntOTt26kDO0Je_LzGjNpFW1SlJHQD4Q';
+    var claims;
+    
+    before(function(done) {
+      function keying(issuer, done) {
+        expect(issuer).to.equal('https://op.example.com/');
+        
+        return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
+      }
+      var decode = sat(keying);
+      
+      decode(data, function(err, c) {
+        if (err) { return done(err); }
+        claims = c;
+        done();
+      });
+    });
+    
+    it('should decode token', function() {
+      expect(claims).to.be.an('object');
+      expect(Object.keys(claims)).to.have.length(6);
+      
+      expect(claims.issuer).to.equal('https://op.example.com/');
+      expect(claims.subject).to.equal('mailto:bob@example.com');
+      expect(claims.audience).to.be.an('array');
+      expect(claims.audience[0]).to.equal('https://rpx.example.com/');
+      expect(claims.audience[1]).to.equal('https://rpy.example.com/');
+      expect(claims.audience[2]).to.equal('https://rpz.example.com/');
+      expect(claims.expiresAt).to.be.an.instanceOf(Date);
+      expect(claims.expiresAt.getTime()).to.equal(7702588800000);
+      expect(claims.authorizedParty).to.equal('https://client.example.net/');
+      expect(claims.authorizedPresenter).to.equal('https://client.example.net/');
+    });
+  });
+  
   describe('decoding a valid SAT that contains an azp claim', function() {
     // header = { alg: 'RS256' }
     // body = { iss: 'https://op.example.com/',
@@ -153,7 +195,7 @@ describe('decode.sat', function() {
     
     it('should decode token', function() {
       expect(claims).to.be.an('object');
-      expect(Object.keys(claims)).to.have.length(5);
+      expect(Object.keys(claims)).to.have.length(6);
       
       expect(claims.issuer).to.equal('https://op.example.com/');
       expect(claims.subject).to.equal('mailto:bob@example.com');
@@ -161,6 +203,7 @@ describe('decode.sat', function() {
       expect(claims.audience[0]).to.equal('https://rp.example.com/');
       expect(claims.expiresAt).to.be.an.instanceOf(Date);
       expect(claims.expiresAt.getTime()).to.equal(7702588800000);
+      expect(claims.authorizedParty).to.equal('https://client.example.net/');
       expect(claims.authorizedPresenter).to.equal('https://client.example.net/');
     });
   });
@@ -192,7 +235,7 @@ describe('decode.sat', function() {
     
     it('should decode token', function() {
       expect(claims).to.be.an('object');
-      expect(Object.keys(claims)).to.have.length(4);
+      expect(Object.keys(claims)).to.have.length(5);
       
       expect(claims.issuer).to.equal('https://op.example.com/');
       expect(claims.subject).to.equal('mailto:bob@example.com');
@@ -200,6 +243,48 @@ describe('decode.sat', function() {
       expect(claims.audience[0]).to.equal('https://rp.example.com/');
       expect(claims.expiresAt).to.be.an.instanceOf(Date);
       expect(claims.expiresAt.getTime()).to.equal(7702588800000);
+      expect(claims.notBefore).to.be.an.instanceOf(Date);
+      expect(claims.notBefore.getTime()).to.equal(1328083200000);
+    });
+  });
+  
+  describe('decoding a valid SAT that contains an iat claim', function() {
+    // header = { alg: 'RS256' }
+    // body = { iss: 'https://op.example.com/',
+    //          sub: 'mailto:bob@example.com',
+    //          aud: 'https://rp.example.com/',
+    //          exp: 7702588800,
+    //          iat: 1446764055 }
+    var data = 'eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL29wLmV4YW1wbGUuY29tLyIsInN1YiI6Im1haWx0bzpib2JAZXhhbXBsZS5jb20iLCJhdWQiOiJodHRwczovL3JwLmV4YW1wbGUuY29tLyIsImV4cCI6NzcwMjU4ODgwMCwiaWF0IjoxNDQ2NzY0MDU1fQ.fx2JLkWdSOKHAsZLiatDPErRZFQu5FCDp3Gypt-EDXwB6Raw-5oxHo54yrNW4BxE2aQDHwiS9oQY2l-i3PJWp_QMAdnAGX3qLqDuYv49x2Mg4FqZ-Z35TIamWInQ6vPZeS0Jh02HFXdYKU58ithEdXYtUyhdvkGXwBkzhkBpTYc';
+    var claims;
+    
+    before(function(done) {
+      function keying(issuer, done) {
+        expect(issuer).to.equal('https://op.example.com/');
+        
+        return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
+      }
+      var decode = sat({ audience: 'https://rp.example.com/' }, keying);
+      
+      decode(data, function(err, c) {
+        if (err) { return done(err); }
+        claims = c;
+        done();
+      });
+    });
+    
+    it('should decode token', function() {
+      expect(claims).to.be.an('object');
+      expect(Object.keys(claims)).to.have.length(5);
+      
+      expect(claims.issuer).to.equal('https://op.example.com/');
+      expect(claims.subject).to.equal('mailto:bob@example.com');
+      expect(claims.audience).to.be.an('array');
+      expect(claims.audience[0]).to.equal('https://rp.example.com/');
+      expect(claims.expiresAt).to.be.an.instanceOf(Date);
+      expect(claims.expiresAt.getTime()).to.equal(7702588800000);
+      expect(claims.issuedAt).to.be.an.instanceOf(Date);
+      expect(claims.issuedAt.getTime()).to.equal(1446764055000);
     });
   });
   

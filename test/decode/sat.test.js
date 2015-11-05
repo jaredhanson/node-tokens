@@ -408,6 +408,46 @@ describe('decode.sat', function() {
     });
   });
   
+  describe('decoding a valid SAT using audience and header values', function() {
+    // header = { alg: 'RS256' }
+    // body = { iss: 'https://op.example.com/',
+    //          sub: 'mailto:bob@example.com',
+    //          aud: 'https://rp.example.com/',
+    //          exp: 7702588800 }
+    var data = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjEyMzQifQ.eyJpc3MiOiJodHRwczovL29wLmV4YW1wbGUuY29tLyIsInN1YiI6Im1haWx0bzpib2JAZXhhbXBsZS5jb20iLCJhdWQiOiJodHRwczovL3JwLmV4YW1wbGUuY29tLyIsImV4cCI6NzcwMjU4ODgwMH0.U2tiKrnmkquiCA8yO3ZuxDkbMXuEhD5VgZhvHvAqr28kCFKowSkvN3M_dF_czouWnQkzzCPWRXfYRBVfd6kLaHE7nBLlYyZUHEiS6Gz4dB8ASSkVv7Mj7EmKvEQWLdoSpSPXW_dqPeCwh2qdLR4mAhKW8lr7SZDe9hfUlAK5QFA';
+    var claims;
+    
+    before(function(done) {
+      function keying(issuer, audience, header, done) {
+        expect(issuer).to.equal('https://op.example.com/');
+        expect(audience).to.equal('https://rp.example.com/');
+        expect(header.alg).to.equal('RS256');
+        expect(header.kid).to.equal('1234');
+        
+        return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
+      }
+      var decode = sat({ audience: 'https://rp.example.com/' }, keying);
+      
+      decode(data, function(err, c) {
+        if (err) { return done(err); }
+        claims = c;
+        done();
+      });
+    });
+    
+    it('should decode token', function() {
+      expect(claims).to.be.an('object');
+      expect(Object.keys(claims)).to.have.length(4);
+      
+      expect(claims.issuer).to.equal('https://op.example.com/');
+      expect(claims.subject).to.equal('mailto:bob@example.com');
+      expect(claims.audience).to.be.an('array');
+      expect(claims.audience[0]).to.equal('https://rp.example.com/');
+      expect(claims.expiresAt).to.be.an.instanceOf(Date);
+      expect(claims.expiresAt.getTime()).to.equal(7702588800000);
+    });
+  });
+  
   describe('decoding an invalid SAT due to invalid signature', function() {
     // header = { alg: 'RS256' }
     // body = { iss: 'https://op.example.com/',

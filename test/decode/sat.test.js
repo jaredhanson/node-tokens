@@ -288,6 +288,87 @@ describe('decode.sat', function() {
     });
   });
   
+  describe('decoding a valid SAT that contains a scope claim with one value', function() {
+    // header = { alg: 'RS256' }
+    // body = { iss: 'https://op.example.com/',
+    //          sub: 'mailto:bob@example.com',
+    //          aud: 'https://rp.example.com/',
+    //          exp: 7702588800,
+    //          scope: 'read:foo' }
+    var data = 'eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL29wLmV4YW1wbGUuY29tLyIsInN1YiI6Im1haWx0bzpib2JAZXhhbXBsZS5jb20iLCJhdWQiOiJodHRwczovL3JwLmV4YW1wbGUuY29tLyIsImV4cCI6NzcwMjU4ODgwMCwic2NvcGUiOiJyZWFkOmZvbyJ9.KlKL83PJcjaQE6HfQwLGNdfQ_8MdMuIpgyx8yhrkTIzVvKuDyiCq5K4WCAECI3pMdJ5N4kcXdj1h21ZzaRyIaQL_jO3h3UbNw-W1okKPI1EUwm45SOxXovqKm27ewPbjAtG-esFS_ROiRDjEGNmVhR5zawknSEGsglTGQAGAQuQ';
+    var claims;
+    
+    before(function(done) {
+      function keying(issuer, done) {
+        expect(issuer).to.equal('https://op.example.com/');
+        
+        return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
+      }
+      var decode = sat({ audience: 'https://rp.example.com/' }, keying);
+      
+      decode(data, function(err, c) {
+        if (err) { return done(err); }
+        claims = c;
+        done();
+      });
+    });
+    
+    it('should decode token', function() {
+      expect(claims).to.be.an('object');
+      expect(Object.keys(claims)).to.have.length(5);
+      
+      expect(claims.issuer).to.equal('https://op.example.com/');
+      expect(claims.subject).to.equal('mailto:bob@example.com');
+      expect(claims.audience).to.be.an('array');
+      expect(claims.audience[0]).to.equal('https://rp.example.com/');
+      expect(claims.expiresAt).to.be.an.instanceOf(Date);
+      expect(claims.expiresAt.getTime()).to.equal(7702588800000);
+      expect(claims.scope).to.be.an('array');
+      expect(claims.scope[0]).to.equal('read:foo');
+    });
+  });
+  
+  describe('decoding a valid SAT that contains a scope claim with two values', function() {
+    // header = { alg: 'RS256' }
+    // body = { iss: 'https://op.example.com/',
+    //          sub: 'mailto:bob@example.com',
+    //          aud: 'https://rp.example.com/',
+    //          exp: 7702588800,
+    //          scope: 'read:foo write:bar' }
+    var data = 'eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL29wLmV4YW1wbGUuY29tLyIsInN1YiI6Im1haWx0bzpib2JAZXhhbXBsZS5jb20iLCJhdWQiOiJodHRwczovL3JwLmV4YW1wbGUuY29tLyIsImV4cCI6NzcwMjU4ODgwMCwic2NvcGUiOiJyZWFkOmZvbyB3cml0ZTpiYXIifQ.JcTR8tDkdhgW9bguGKlgmUOVAz1hhBuDYXU30p_TbyFN2lanJZmIEhBjuWTBAOFMPrIhdO1yAKPyVAi-op_MnrZYgLZfkb-oF6ZGwtGpB-PrHbnEYtPXpgwBZodzV9Fh5gDue_Fv4ISJU98u9ecsugs8Hvut5Wi5fkc-GMCiu9c';
+    var claims;
+    
+    before(function(done) {
+      function keying(issuer, done) {
+        expect(issuer).to.equal('https://op.example.com/');
+        
+        return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
+      }
+      var decode = sat({ audience: 'https://rp.example.com/' }, keying);
+      
+      decode(data, function(err, c) {
+        if (err) { return done(err); }
+        claims = c;
+        done();
+      });
+    });
+    
+    it('should decode token', function() {
+      expect(claims).to.be.an('object');
+      expect(Object.keys(claims)).to.have.length(5);
+      
+      expect(claims.issuer).to.equal('https://op.example.com/');
+      expect(claims.subject).to.equal('mailto:bob@example.com');
+      expect(claims.audience).to.be.an('array');
+      expect(claims.audience[0]).to.equal('https://rp.example.com/');
+      expect(claims.expiresAt).to.be.an.instanceOf(Date);
+      expect(claims.expiresAt.getTime()).to.equal(7702588800000);
+      expect(claims.scope).to.be.an('array');
+      expect(claims.scope[0]).to.equal('read:foo');
+      expect(claims.scope[1]).to.equal('write:bar');
+    });
+  });
+  
   describe('decoding a valid SAT using header values', function() {
     // header = { alg: 'RS256' }
     // body = { iss: 'https://op.example.com/',

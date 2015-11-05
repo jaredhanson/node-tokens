@@ -48,7 +48,7 @@ describe('encode.sat', function() {
       });
       
       it('should have verifiable signature', function() {
-        var ok = jws.verify(token, fs.readFileSync(__dirname + '/../keys/rsa/cert.pem') );
+        var ok = jws.verify(token, 'RS256', fs.readFileSync(__dirname + '/../keys/rsa/cert.pem') );
         expect(ok).to.be.true;
       });
     });

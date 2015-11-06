@@ -670,6 +670,40 @@ describe('decode.sat', function() {
     });
   });
   
+  describe('decoding an invalid SAT due to unsecured JWT', function() {
+    // header = { alg: 'none' }
+    // body = { iss: 'joe',
+    // sub: 'jane',
+    // aud: 'http://www.example.com/',
+    // exp: 7702588800,
+    // 'http://example.com/is_root': true }
+    var data = 'eyJhbGciOiJub25lIn0.eyJpc3MiOiJqb2UiLCJzdWIiOiJqYW5lIiwiYXVkIjoiaHR0cDovL3d3dy5leGFtcGxlLmNvbS8iLCJleHAiOjc3MDI1ODg4MDAsImh0dHA6Ly9leGFtcGxlLmNvbS9pc19yb290Ijp0cnVlfQ.';
+    var claims, error;
+  
+    before(function(done) {
+      function keying(issuer, done) {
+        return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
+      }
+      var decode = sat(keying);
+    
+      decode(data, function(err, c) {
+        error = err;
+        claims = c;
+        done();
+      });
+    });
+  
+    it('should error', function() {
+      expect(error).to.be.an.instanceOf(Error);
+      expect(error.message).to.equal('Token unsecured');
+      expect(error.code).to.equal('ENOTVALID');
+    });
+    
+    it('should not decode token', function() {
+      expect(claims).to.be.undefined;
+    });
+  });
+  
   describe('decoding an invalid SAT due to missing iss claim', function() {
     var data = 'eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJtYWlsdG86Ym9iQGV4YW1wbGUuY29tIiwiYXVkIjoiaHR0cHM6Ly9ycC5leGFtcGxlLmNvbS8iLCJleHAiOjc3MDI1ODg4MDB9.VrDaygaaE-ycWwEQfEe3SdZ7sgcSbSYd0PQ_Z88UF3l3ycp8cvVNStTHaUD9sxpqJN2iV8lgQ2nfa4Ts3l-1g3SWtDcRlo82P_SrmXRaSkw2bL9cv9iwSF238d5DK1Vdu3RtMxcbrgBzhRJj0UlggErj5c9KjN9qmP2oP2kjUKc';
     var claims, error;

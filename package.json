@@ -33,7 +33,8 @@
   },
   "devDependencies": {
     "mocha": "1.x.x",
-    "chai": "1.x.x"
+    "chai": "1.x.x",
+    "proxyquire": "1.x.x"
   },
   "engines": {
     "node": "*"

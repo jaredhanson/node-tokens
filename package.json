@@ -32,8 +32,9 @@
     "debug": "2.x.x"
   },
   "devDependencies": {
-    "mocha": "1.x.x",
-    "chai": "1.x.x",
+    "chai": "3.x.x",
+    "mocha": "2.x.x",
+    "node-version": "1.x.x",
     "proxyquire": "1.x.x"
   },
   "engines": {

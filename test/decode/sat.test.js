@@ -1,6 +1,7 @@
 var sat = require('../../lib/decode/sat')
   , fs = require('fs')
-  , jws = require('jws');
+  , jws = require('jws')
+  , NODE_VERSION = require('node-version');
 
 
 describe('decode.sat', function() {
@@ -661,7 +662,12 @@ describe('decode.sat', function() {
   
     it('should error', function() {
       expect(error).to.be.an.instanceOf(Error);
-      expect(error.message).to.equal('PEM_read_bio_PUBKEY failed');
+      if (parseInt(NODE_VERSION.major) == 0) {
+        expect(error.message).to.equal('Token signature invalid');
+        expect(error.code).to.equal('ENOTVALID');
+      } else {
+        expect(error.message).to.equal('PEM_read_bio_PUBKEY failed');
+      }
     });
     
     it('should not decode token', function() {

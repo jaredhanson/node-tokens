@@ -661,8 +661,7 @@ describe('decode.sat', function() {
   
     it('should error', function() {
       expect(error).to.be.an.instanceOf(Error);
-      expect(error.message).to.equal('Token signature invalid');
-      expect(error.code).to.equal('ENOTVALID');
+      expect(error.message).to.equal('PEM_read_bio_PUBKEY failed');
     });
     
     it('should not decode token', function() {

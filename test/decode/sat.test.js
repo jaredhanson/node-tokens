@@ -662,7 +662,7 @@ describe('decode.sat', function() {
   
     it('should error', function() {
       expect(error).to.be.an.instanceOf(Error);
-      if (parseInt(NODE_VERSION.major) == 0) {
+      if (parseInt(NODE_VERSION.major) == 0 && parseInt(NODE_VERSION.minor) < 12) {
         expect(error.message).to.equal('Token signature invalid');
         expect(error.code).to.equal('ENOTVALID');
       } else {

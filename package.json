@@ -39,7 +39,7 @@
     "@jaredhanson/make-node": "0.1.x"
   },
   "engines": {
-    "node": ">= 0.10"
+    "node": ">= 0.12"
   },
   "scripts": {
     "test": "node_modules/.bin/mocha --reporter spec --require test/bootstrap/node test/*.test.js"

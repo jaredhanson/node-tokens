@@ -17,6 +17,6 @@ script:
   - "make test-cov"
 
 after_success:
-  - "cat ./reports/coverage/lcov.info | coveralls"
+  - "make report-cov"
 
 sudo: false

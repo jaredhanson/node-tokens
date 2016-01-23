@@ -19,3 +19,5 @@ script: "make ci-travis"
 
 after_success:
   - "make submit-cov-to-coveralls"
+
+sudo: false

@@ -9,26 +9,26 @@ describe('encode.sat', function() {
     expect(sat).to.be.a('function');
   });
   
-  describe('default algorithm', function() {
-    
+  describe('constructed with issuer and key', function() {
     var encode = sat({ issuer: 'https://www.example.com/',
                        key: fs.readFileSync(__dirname + '/../keys/rsa/private-key.pem') });
     
     
-    describe('encoding info', function() {
-      var info = { subject: '1234',
-                   audience: 'http://www.example.net/',
-                   scope: 'foo',
-                   expiresAt: new Date(1390309288) };
+    describe('encoding standard claims', function() {
+      var claims = { subject: '1234',
+                     audience: 'http://www.example.net/',
+                     scope: 'foo',
+                     expiresAt: new Date(1390309288) };
+                   
       var token;
       before(function(done){
-        encode(info, function(err, tok){
-          token = tok;
+        encode(claims, function(err, t){
+          token = t;
           done(err);
         });
       });
       
-      it('should encode correctly', function() {
+      it('should encode claims', function() {
         expect(token.length).to.equal(375);
         var d = jws.decode(token);
         
@@ -50,21 +50,6 @@ describe('encode.sat', function() {
       it('should have verifiable signature', function() {
         var ok = jws.verify(token, 'RS256', fs.readFileSync(__dirname + '/../keys/rsa/cert.pem') );
         expect(ok).to.be.true;
-      });
-    });
-
-    describe('error with bad payload', function() {
-      var token, error;
-      before(function(done){
-        encode({}, function(err, tok){
-          token = tok;
-          error = err;
-          done();
-        });
-      });
-      
-      it('should error', function() {
-        expect(error.toString()).to.equal("NotValidError: Structured access token requires a subject claim");
       });
     });
   });

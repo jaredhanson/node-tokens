@@ -376,7 +376,7 @@ describe('decode.sat', function() {
     //          sub: 'mailto:bob@example.com',
     //          aud: 'https://rp.example.com/',
     //          exp: 7702588800,
-    //          scope: 'read:foo write:bar' }
+    //          scope: [ 'read:foo', 'write:bar' ] }
     var data = 'eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL29wLmV4YW1wbGUuY29tLyIsInN1YiI6Im1haWx0bzpib2JAZXhhbXBsZS5jb20iLCJhdWQiOiJodHRwczovL3JwLmV4YW1wbGUuY29tLyIsImV4cCI6NzcwMjU4ODgwMCwic2NvcGUiOlsicmVhZDpmb28iLCJ3cml0ZTpiYXIiXX0.oTRaVaWTVwdY68hGdC3phhZi79mCT6QmswGDysxQcfWQmOeEyEC_DLc196aOjI6No7_M1EQKyllVR6oIO7olxOTchezk1xPwsny-LTMuNkMaoac_pk_rbGlEQTMeKNrVbvJ8iDlxE-dz8B8zhoPhGjzR-LGuJWeAIFYv5V4KMCo';
     var claims;
     
@@ -408,6 +408,42 @@ describe('decode.sat', function() {
       expect(claims.scope).to.be.an('array');
       expect(claims.scope[0]).to.equal('read:foo');
       expect(claims.scope[1]).to.equal('write:bar');
+    });
+  });
+  
+  describe('decoding a valid SAT that contains a scope claim serialized as object', function() {
+    // header = { alg: 'RS256' }
+    // body = { iss: 'https://op.example.com/',
+    //          sub: 'mailto:bob@example.com',
+    //          aud: 'https://rp.example.com/',
+    //          exp: 7702588800,
+    //          scope: [ 'read:foo', 'write:bar' ] }
+    var data = 'eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL29wLmV4YW1wbGUuY29tLyIsInN1YiI6Im1haWx0bzpib2JAZXhhbXBsZS5jb20iLCJhdWQiOiJodHRwczovL3JwLmV4YW1wbGUuY29tLyIsImV4cCI6NzcwMjU4ODgwMCwic2NvcGUiOnsiZm9vIjoiYmFyIn19.HUWwSx8ye1vwCjQ1xcVadN2q_0A8jxgowXpcx7Gq6aMWsS6bpIVy7UNLWTJkCx8L22qXDjc-0LEYTdQgnWSV5DGv0AR1IFlUhLhJYtfvNI5TOx7muM5OWBDKULxWit442vqs37mqHIcG3fKNIntClN_alvXDOJ-6DWEBBwwfTyM';
+    var error, claims;
+    
+    before(function(done) {
+      function keying(issuer, done) {
+        expect(issuer).to.equal('https://op.example.com/');
+        
+        return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
+      }
+      var decode = sat({ audience: 'https://rp.example.com/' }, keying);
+      
+      decode(data, function(err, c) {
+        error = err;
+        claims = c;
+        done();
+      });
+    });
+    
+    it('should error', function() {
+      expect(error).to.be.an.instanceOf(Error);
+      expect(error.message).to.equal('scope claim in JWT must be a string');
+      expect(error.code).to.equal('ENOTVALID');
+    });
+    
+    it('should not decode token', function() {
+      expect(claims).to.be.undefined;
     });
   });
   

@@ -15,8 +15,10 @@ describe('encode.sat', function() {
     
     
     describe('encoding standard claims', function() {
-      var claims = { subject: '1234',
+      var claims = { id: '11-22-33',
+                     subject: '1234',
                      audience: 'http://www.example.net/',
+                     authorizedPresenter: 'abcd',
                      scope: 'foo',
                      expiresAt: new Date(1390309288) };
                    
@@ -29,7 +31,7 @@ describe('encode.sat', function() {
       });
       
       it('should encode claims', function() {
-        expect(token.length).to.equal(375);
+        expect(token.length).to.equal(415);
         var d = jws.decode(token);
         
         expect(d.header).to.be.an('object');
@@ -38,9 +40,11 @@ describe('encode.sat', function() {
         expect(d.header.alg).to.equal('RS256');
         
         expect(d.payload).to.be.an('object');
-        expect(Object.keys(d.payload)).to.have.length(6);
+        expect(Object.keys(d.payload)).to.have.length(8);
+        expect(d.payload.jti).to.equal('11-22-33');
         expect(d.payload.iss).to.equal('https://www.example.com/');
         expect(d.payload.sub).to.equal('1234');
+        expect(d.payload.azp).to.equal('abcd');
         expect(d.payload.scope).to.equal('foo');
         expect(d.payload.aud).to.equal('http://www.example.net/');
         expect(d.payload.iat).to.be.within(Math.floor((Date.now() - 2) / 1000), Math.floor(Date.now() / 1000));

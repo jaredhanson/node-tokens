@@ -27,7 +27,7 @@
   "main": "./lib",
   "dependencies": {
     "moment": "2.x.x",
-    "request": "2.x.x",
+    "request": "2.72.0",
     "jws": "3.x.x",
     "debug": "2.x.x"
   },

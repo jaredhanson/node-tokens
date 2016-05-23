@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "chai": "3.x.x",
-    "mocha": "2.x.x",
+    "mocha": "2.5.1",
     "node-version": "1.x.x",
     "proxyquire": "1.x.x",
     "@jaredhanson/make-node": "0.2.x"

@@ -3,7 +3,7 @@ var sat = require('../../lib/encode/sat')
   , jws = require('jws');
 
 
-describe('encode.sat', function() {
+describe.skip('encode.sat', function() {
   
   it('should export generator', function() {
     expect(sat).to.be.a('function');

@@ -4,7 +4,7 @@ var sat = require('../../lib/decode/sat')
   , NODE_VERSION = require('node-version');
 
 
-describe('decode.sat', function() {
+describe.skip('decode.sat', function() {
   
   it('should be named sat', function() {
     expect(sat(function(){}).name).to.equal('sat');

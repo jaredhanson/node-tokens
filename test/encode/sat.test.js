@@ -60,7 +60,7 @@ describe('seal', function() {
         expect(call.args[0]).to.deep.equal({
           recipients: undefined,
           usage: 'sign',
-          algorithms: [ 'hmac-sha256' ]
+          algorithms: [ 'hmac-sha256', 'rsa-sha256' ]
         });
       });
       
@@ -120,7 +120,7 @@ describe('seal', function() {
             secret: 'API-12abcdef7890abcdef7890abcdef'
           } ],
           usage: 'sign',
-          algorithms: [ 'hmac-sha256' ]
+          algorithms: [ 'hmac-sha256', 'rsa-sha256' ]
         });
       });
       
@@ -177,7 +177,7 @@ describe('seal', function() {
             id: 'https://api.example.com/'
           } ],
           usage: 'sign',
-          algorithms: [ 'hmac-sha256' ]
+          algorithms: [ 'hmac-sha256', 'rsa-sha256' ]
         });
       });
       

@@ -36,6 +36,7 @@
     "mocha": "2.x.x",
     "node-version": "1.x.x",
     "proxyquire": "1.x.x",
+    "sinon": "^2.0.0",
     "@jaredhanson/make-node": "0.2.x"
   },
   "engines": {

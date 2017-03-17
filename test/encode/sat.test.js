@@ -1,4 +1,4 @@
-var sat = require('../../lib/encode/sat')
+var sat = require('../../lib/jwt/seal')
   , fs = require('fs')
   , jws = require('jws');
 

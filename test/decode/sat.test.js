@@ -1,4 +1,4 @@
-var sat = require('../../lib/decode/sat')
+var sat = require('../../lib/jwt/unseal')
   , fs = require('fs')
   , jws = require('jws')
   , NODE_VERSION = require('node-version');

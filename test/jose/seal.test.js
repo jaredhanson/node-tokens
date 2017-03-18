@@ -30,7 +30,7 @@ describe('jose/seal', function() {
           return cb(null, [ {
             secret: recip.secret,
             algorithm: q.usage == 'sign' ? 'hmac-sha256' : 'aes128-cbc-hmac-sha256'
-          } ]);
+          } ], 'https://as.example.com');
           
         case 'https://api.example.com/asym/256':
           switch (q.usage) {
@@ -340,8 +340,7 @@ describe('jose/seal', function() {
       */
     }); // signing arbitrary claims
     
-    /*
-    describe('signing arbitrary claims to audience using HMAC SHA-256', function() {
+    describe('signing arbitrary claims to single audience using HMAC SHA-256', function() {
       var token;
       before(function(done) {
         var audience = [ {
@@ -373,6 +372,22 @@ describe('jose/seal', function() {
       });
       
       it('should generate a token', function() {
+        expect(token).to.be.an('object');
+        expect(Object.keys(token)).to.have.length(3);
+        
+        expect(token.payload).to.be.a('string');
+        expect(token.protected).to.be.a('string');
+        expect(token.signature).to.be.an('string');
+        
+        var tkn = jose.parse(token);
+        
+        expect(tkn.all[0]).to.be.an('object');
+        expect(Object.keys(tkn.all[0])).to.have.length(3);
+        expect(tkn.all[0].typ).to.equal('JOSE+JSON');
+        expect(tkn.all[0].alg).to.equal('HS256');
+        expect(tkn.all[0].cty).to.equal('json');
+        
+        /*
         expect(token.length).to.equal(99);
         expect(token.substr(0, 2)).to.equal('ey');
         
@@ -386,20 +401,48 @@ describe('jose/seal', function() {
         expect(tkn.payload).to.be.an('object');
         expect(Object.keys(tkn.payload)).to.have.length(1);
         expect(tkn.payload.foo).to.equal('bar');
+        */
       });
       
       describe('verifying token', function() {
-        var valid;
-        before(function() {
-          valid = jws.verify(token, 'HS256', 'API-12abcdef7890abcdef7890abcdef');
+        var header, protected, claims;
+        before(function(done) {
+          var jwk = {
+            kty: 'oct',
+            k: jose.util.base64url.encode('API-12abcdef7890abcdef7890abcdef')
+          };
+          
+          var keystore = jose.JWK.createKeyStore();
+          keystore.add(jwk).
+            then(function() {
+              return jose.JWS.createVerify(keystore).verify(token);
+            }).
+            then(function(result) {
+              header = result.header;
+              protected = result.protected;
+              claims = JSON.parse(result.payload.toString());
+              done();
+            });
         });
         
-        it('should be valid', function() {
-          expect(valid).to.be.true;
+        it('should have correct header', function() {
+          expect(header).to.be.an('object');
+          expect(Object.keys(header)).to.have.length(3);
+          expect(header.typ).to.equal('JOSE+JSON');
+          expect(header.alg).to.equal('HS256');
+          expect(header.cty).to.equal('json');
+          
+          expect(protected).to.deep.equal(['typ', 'cty', 'alg']);
+        });
+        
+        it('should have correct claims', function() {
+          expect(claims).to.be.an('object');
+          expect(Object.keys(claims)).to.have.length(2);
+          expect(claims.iss).to.equal('https://as.example.com');
+          expect(claims.foo).to.equal('bar');
         });
       });
     }); // signing arbitrary claims to audience using HMAC SHA-256
-    */
     
     /*
     describe('signing arbitrary claims to audience using RSA-256', function() {

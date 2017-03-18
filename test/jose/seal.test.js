@@ -386,22 +386,6 @@ describe('jose/seal', function() {
         expect(tkn.all[0].typ).to.equal('JOSE+JSON');
         expect(tkn.all[0].alg).to.equal('HS256');
         expect(tkn.all[0].cty).to.equal('json');
-        
-        /*
-        expect(token.length).to.equal(99);
-        expect(token.substr(0, 2)).to.equal('ey');
-        
-        var tkn = jws.decode(token);
-        
-        expect(tkn.header).to.be.an('object');
-        expect(Object.keys(tkn.header)).to.have.length(2);
-        expect(tkn.header.typ).to.equal('JWT');
-        expect(tkn.header.alg).to.equal('HS256');
-        
-        expect(tkn.payload).to.be.an('object');
-        expect(Object.keys(tkn.payload)).to.have.length(1);
-        expect(tkn.payload.foo).to.equal('bar');
-        */
       });
       
       describe('verifying token', function() {

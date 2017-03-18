@@ -16,25 +16,27 @@ describe('seal', function() {
     
     before(function() {
       keying = sinon.spy(function(q, cb){
-        if (q.recipients) {
-          var recipient = q.recipients[0];
-          if (recipient.secret && q.algorithms.indexOf('hmac-sha256') !== -1) {
-            return cb(null, [ {
-              secret: recipient.secret,
-              algorithm: 'hmac-sha256'
-            } ]);
-          } else {
-            return cb(null, [ {
-              id: 'rsa',
-              privateKey: fs.readFileSync(__dirname + '/../keys/rsa/private-key.pem'),
-              algorithm: 'rsa-sha256'
-            } ]);
-          }
-        } else {
+        var recip = q.recipients[0];
+        
+        switch (recip.id) {
+        case 'https://www.example.com':
           return cb(null, [ {
             id: '1',
             secret: '12abcdef7890abcdef7890abcdef7890',
+            algorithm: q.usage == 'sign' ? 'hmac-sha256' : 'aes128-cbc-hmac-sha256'
+          } ]);
+          
+        case 'https://api.example.com/sym/256':
+          return cb(null, [ {
+            secret: recip.secret,
             algorithm: 'hmac-sha256'
+          } ]);
+          
+        case 'https://api.example.com/asym/256':
+          return cb(null, [ {
+            id: '13',
+            privateKey: fs.readFileSync(__dirname + '/../keys/rsa/private-key.pem'),
+            algorithm: 'rsa-sha256'
           } ]);
         }
       });
@@ -42,10 +44,14 @@ describe('seal', function() {
       seal = setup(keying);
     });
     
-    describe('encrypting arbitrary claims', function() {
+    describe('encrypting arbitrary claims to self', function() {
       var token;
       before(function(done) {
-        seal({ foo: 'bar' }, function(err, t) {
+        var audience = [ {
+          id: 'https://www.example.com'
+        } ];
+        
+        seal({ foo: 'bar' }, { audience: audience }, function(err, t) {
           token = t;
           done(err);
         });
@@ -59,7 +65,9 @@ describe('seal', function() {
         expect(keying.callCount).to.equal(1);
         var call = keying.getCall(0);
         expect(call.args[0]).to.deep.equal({
-          recipients: undefined,
+          recipients: [ {
+            id: 'https://www.example.com'
+          } ],
           usage: 'encrypt',
           algorithms: [ 'aes128-cbc-hmac-sha256' ]
         });
@@ -106,10 +114,14 @@ describe('seal', function() {
       });
     }); // encrypting arbitrary claims
     
-    describe('signing arbitrary claims', function() {
+    describe('signing arbitrary claims to self', function() {
       var token;
       before(function(done) {
-        seal({ foo: 'bar' }, { confidential: false }, function(err, t) {
+        var audience = [ {
+          id: 'https://www.example.com'
+        } ];
+        
+        seal({ foo: 'bar' }, { audience: audience, confidential: false }, function(err, t) {
           token = t;
           done(err);
         });
@@ -123,7 +135,9 @@ describe('seal', function() {
         expect(keying.callCount).to.equal(1);
         var call = keying.getCall(0);
         expect(call.args[0]).to.deep.equal({
-          recipients: undefined,
+          recipients: [ {
+            id: 'https://www.example.com'
+          } ],
           usage: 'sign',
           algorithms: [ 'hmac-sha256', 'rsa-sha256' ]
         });
@@ -162,7 +176,7 @@ describe('seal', function() {
       var token;
       before(function(done) {
         var audience = [ {
-          id: 'https://api.example.com/',
+          id: 'https://api.example.com/sym/256',
           secret: 'API-12abcdef7890abcdef7890abcdef'
         } ];
         
@@ -181,7 +195,7 @@ describe('seal', function() {
         var call = keying.getCall(0);
         expect(call.args[0]).to.deep.equal({
           recipients: [ {
-            id: 'https://api.example.com/',
+            id: 'https://api.example.com/sym/256',
             secret: 'API-12abcdef7890abcdef7890abcdef'
           } ],
           usage: 'sign',
@@ -221,7 +235,7 @@ describe('seal', function() {
       var token;
       before(function(done) {
         var audience = [ {
-          id: 'https://api.example.com/'
+          id: 'https://api.example.com/asym/256'
         } ];
         
         seal({ foo: 'bar' }, { audience: audience, confidential: false }, function(err, t) {
@@ -239,7 +253,7 @@ describe('seal', function() {
         var call = keying.getCall(0);
         expect(call.args[0]).to.deep.equal({
           recipients: [ {
-            id: 'https://api.example.com/'
+            id: 'https://api.example.com/asym/256'
           } ],
           usage: 'sign',
           algorithms: [ 'hmac-sha256', 'rsa-sha256' ]
@@ -247,7 +261,7 @@ describe('seal', function() {
       });
       
       it('should generate a token', function() {
-        expect(token.length).to.equal(243);
+        expect(token.length).to.equal(242);
         expect(token.substr(0, 2)).to.equal('ey');
         
         var tkn = jws.decode(token);
@@ -256,7 +270,7 @@ describe('seal', function() {
         expect(Object.keys(tkn.header)).to.have.length(3);
         expect(tkn.header.typ).to.equal('JWT');
         expect(tkn.header.alg).to.equal('RS256');
-        expect(tkn.header.kid).to.equal('rsa');
+        expect(tkn.header.kid).to.equal('13');
         
         expect(tkn.payload).to.be.an('object');
         expect(Object.keys(tkn.payload)).to.have.length(1);

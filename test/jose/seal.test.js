@@ -309,18 +309,12 @@ describe('jose/seal', function() {
       });
       
       it('should generate with JSON Serialization', function() {
-        console.log(token);
-        
         expect(token).to.be.an('object');
-        expect(Object.keys(token)).to.have.length(2);
+        expect(Object.keys(token)).to.have.length(3);
         
         expect(token.payload).to.be.a('string');
-        expect(token.signatures).to.be.an('array');
-        expect(Object.keys(token.signatures)).to.have.length(1);
-        expect(token.signatures[0]).to.be.an('object');
-        expect(Object.keys(token.signatures[0])).to.have.length(2);
-        expect(token.signatures[0].protected).to.be.a('string');
-        expect(token.signatures[0].signature).to.be.a('string');
+        expect(token.protected).to.be.a('string');
+        expect(token.signature).to.be.an('string');
         
         var tkn = jose.parse(token);
         

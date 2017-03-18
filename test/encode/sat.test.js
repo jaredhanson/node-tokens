@@ -1,5 +1,6 @@
 var setup = require('../../lib/jwt/seal')
   , fs = require('fs')
+  , jose = require('node-jose')
   , jws = require('jws')
   , sinon = require('sinon');
 
@@ -65,36 +66,44 @@ describe('seal', function() {
       });
       
       it('should generate a token', function() {
-        expect(token.length).to.equal(188);
+        expect(token.length).to.equal(204);
         expect(token.substr(0, 2)).to.equal('ey');
         
-        /*
-        var tkn = jws.decode(token);
+        var tkn = jose.parse(token);
         
         expect(tkn.header).to.be.an('object');
-        expect(Object.keys(tkn.header)).to.have.length(3);
+        expect(Object.keys(tkn.header)).to.have.length(4);
         expect(tkn.header.typ).to.equal('JWT');
-        expect(tkn.header.alg).to.equal('HS256');
+        expect(tkn.header.alg).to.equal('A256KW');
+        expect(tkn.header.enc).to.equal('A128CBC-HS256');
         expect(tkn.header.kid).to.equal('1');
-        
-        expect(tkn.payload).to.be.an('object');
-        expect(Object.keys(tkn.payload)).to.have.length(1);
-        expect(tkn.payload.foo).to.equal('bar');
-        */
       });
       
-      /*
-      describe('verifying claims', function() {
-        var valid;
-        before(function() {
-          valid = jws.verify(token, 'HS256', '12abcdef7890abcdef7890abcdef7890');
+      describe('verifying token', function() {
+        var claims;
+        before(function(done) {
+          var jwk = {
+            kty: 'oct',
+            kid: '1',
+            k: jose.util.base64url.encode('12abcdef7890abcdef7890abcdef7890')
+          };
+          
+          var keystore = jose.JWK.createKeyStore();
+          keystore.add(jwk).
+            then(function() {
+              return jose.JWE.createDecrypt(keystore).decrypt(token);
+            }).
+            then(function(result) {
+              claims = JSON.parse(result.payload.toString());
+              done();
+            });
         });
         
         it('should be valid', function() {
-          expect(valid).to.be.true;
+          expect(claims).to.be.an('object');
+          expect(claims.foo).to.equal('bar');
         });
       });
-      */
     }); // encrypting arbitrary claims
     
     describe('signing arbitrary claims', function() {
@@ -137,7 +146,7 @@ describe('seal', function() {
         expect(tkn.payload.foo).to.equal('bar');
       });
       
-      describe('verifying claims', function() {
+      describe('verifying token', function() {
         var valid;
         before(function() {
           valid = jws.verify(token, 'HS256', '12abcdef7890abcdef7890abcdef7890');
@@ -196,7 +205,7 @@ describe('seal', function() {
         expect(tkn.payload.foo).to.equal('bar');
       });
       
-      describe('verifying claims', function() {
+      describe('verifying token', function() {
         var valid;
         before(function() {
           valid = jws.verify(token, 'HS256', 'API-12abcdef7890abcdef7890abcdef');
@@ -254,7 +263,7 @@ describe('seal', function() {
         expect(tkn.payload.foo).to.equal('bar');
       });
       
-      describe('verifying claims', function() {
+      describe('verifying token', function() {
         var valid;
         before(function() {
           valid = jws.verify(token, 'RS256', fs.readFileSync(__dirname + '/../keys/rsa/cert.pem'));

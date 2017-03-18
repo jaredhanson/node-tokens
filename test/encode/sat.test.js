@@ -193,8 +193,7 @@ describe('seal', function() {
       });
     }); // encrypting arbitrary claims to audience using AES-128 in CBC mode with HMAC SHA-256
     
-    // WIP
-    describe('encrypting arbitrary claims to audience using RSA-256', function() {
+    describe('encrypting arbitrary claims to audience using RSA-OAEP', function() {
       var token;
       before(function(done) {
         var audience = [ {
@@ -237,21 +236,20 @@ describe('seal', function() {
         expect(tkn.header.kid).to.equal('13');
       });
       
-      /*
       describe('verifying token', function() {
         var claims;
         before(function(done) {
-          var jwk = {
-            kty: 'oct',
-            k: jose.util.base64url.encode('API-12abcdef7890abcdef7890abcdef')
-          };
-          
           var keystore = jose.JWK.createKeyStore();
-          keystore.add(jwk).
-            then(function() {
+          return jose.JWK.asKey(fs.readFileSync(__dirname + '/../keys/rsa/private-key.pem'), 'pem')
+            .then(function(k) {
+              var jwk = k.toJSON(true);
+              jwk.kid = '13';
+              return keystore.add(jwk);
+            })
+            .then(function() {
               return jose.JWE.createDecrypt(keystore).decrypt(token);
-            }).
-            then(function(result) {
+            })
+            .then(function(result) {
               claims = JSON.parse(result.payload.toString());
               done();
             });
@@ -262,8 +260,7 @@ describe('seal', function() {
           expect(claims.foo).to.equal('bar');
         });
       });
-      */
-    }); // encrypting arbitrary claims to audience using RSA-256
+    }); // encrypting arbitrary claims to audience using RSA-OAEP
     
     describe('signing arbitrary claims to self', function() {
       var token;

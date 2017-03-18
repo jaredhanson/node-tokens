@@ -279,7 +279,6 @@ describe('jose/seal', function() {
     }); // encrypting arbitrary claims to audience using RSA-OAEP
     */
     
-    /*
     describe('signing arbitrary claims to self', function() {
       var token;
       before(function(done) {
@@ -309,23 +308,31 @@ describe('jose/seal', function() {
         });
       });
       
-      it('should generate a token', function() {
-        expect(token.length).to.equal(113);
-        expect(token.substr(0, 2)).to.equal('ey');
+      it('should generate with JSON Serialization', function() {
+        console.log(token);
         
-        var tkn = jws.decode(token);
+        expect(token).to.be.an('object');
+        expect(Object.keys(token)).to.have.length(2);
         
-        expect(tkn.header).to.be.an('object');
-        expect(Object.keys(tkn.header)).to.have.length(3);
-        expect(tkn.header.typ).to.equal('JWT');
-        expect(tkn.header.alg).to.equal('HS256');
-        expect(tkn.header.kid).to.equal('1');
+        expect(token.payload).to.be.a('string');
+        expect(token.signatures).to.be.an('array');
+        expect(Object.keys(token.signatures)).to.have.length(1);
+        expect(token.signatures[0]).to.be.an('object');
+        expect(Object.keys(token.signatures[0])).to.have.length(2);
+        expect(token.signatures[0].protected).to.be.a('string');
+        expect(token.signatures[0].signature).to.be.a('string');
         
-        expect(tkn.payload).to.be.an('object');
-        expect(Object.keys(tkn.payload)).to.have.length(1);
-        expect(tkn.payload.foo).to.equal('bar');
+        var tkn = jose.parse(token);
+        
+        expect(tkn.all[0]).to.be.an('object');
+        expect(Object.keys(tkn.all[0])).to.have.length(4);
+        expect(tkn.all[0].typ).to.equal('JOSE+JSON');
+        expect(tkn.all[0].alg).to.equal('HS256');
+        expect(tkn.all[0].kid).to.equal('1');
+        expect(tkn.all[0].cty).to.equal('json');
       });
       
+      /*
       describe('verifying token', function() {
         var valid;
         before(function() {
@@ -336,8 +343,8 @@ describe('jose/seal', function() {
           expect(valid).to.be.true;
         });
       });
+      */
     }); // signing arbitrary claims
-    */
     
     /*
     describe('signing arbitrary claims to audience using HMAC SHA-256', function() {

@@ -59,13 +59,69 @@ describe('seal', function() {
         var call = keying.getCall(0);
         expect(call.args[0]).to.deep.equal({
           recipients: undefined,
+          usage: 'encrypt',
+          algorithms: [ 'aes128-cbc-hmac-sha256' ]
+        });
+      });
+      
+      it('should generate a token', function() {
+        expect(token.length).to.equal(188);
+        expect(token.substr(0, 2)).to.equal('ey');
+        
+        /*
+        var tkn = jws.decode(token);
+        
+        expect(tkn.header).to.be.an('object');
+        expect(Object.keys(tkn.header)).to.have.length(3);
+        expect(tkn.header.typ).to.equal('JWT');
+        expect(tkn.header.alg).to.equal('HS256');
+        expect(tkn.header.kid).to.equal('1');
+        
+        expect(tkn.payload).to.be.an('object');
+        expect(Object.keys(tkn.payload)).to.have.length(1);
+        expect(tkn.payload.foo).to.equal('bar');
+        */
+      });
+      
+      /*
+      describe('verifying claims', function() {
+        var valid;
+        before(function() {
+          valid = jws.verify(token, 'HS256', '12abcdef7890abcdef7890abcdef7890');
+        });
+        
+        it('should be valid', function() {
+          expect(valid).to.be.true;
+        });
+      });
+      */
+    }); // encrypting arbitrary claims
+    
+    describe('signing arbitrary claims', function() {
+      var token;
+      before(function(done) {
+        seal({ foo: 'bar' }, { confidential: false }, function(err, t) {
+          token = t;
+          done(err);
+        });
+      });
+      
+      after(function() {
+        keying.reset();
+      });
+      
+      it('should query for key', function() {
+        expect(keying.callCount).to.equal(1);
+        var call = keying.getCall(0);
+        expect(call.args[0]).to.deep.equal({
+          recipients: undefined,
           usage: 'sign',
           algorithms: [ 'hmac-sha256', 'rsa-sha256' ]
         });
       });
       
       it('should generate a token', function() {
-        expect(token.length).to.be.above(0);
+        expect(token.length).to.equal(113);
         expect(token.substr(0, 2)).to.equal('ey');
         
         var tkn = jws.decode(token);
@@ -91,9 +147,9 @@ describe('seal', function() {
           expect(valid).to.be.true;
         });
       });
-    }); // encrypting arbitrary claims
+    }); // signing arbitrary claims
     
-    describe('encrypting arbitrary claims to audience using shared key for HMAC SHA256', function() {
+    describe('signing arbitrary claims to audience using HMAC SHA-256', function() {
       var token;
       before(function(done) {
         var audience = [ {
@@ -101,7 +157,7 @@ describe('seal', function() {
           secret: 'API-12abcdef7890abcdef7890abcdef'
         } ];
         
-        seal({ foo: 'bar' }, { audience: audience }, function(err, t) {
+        seal({ foo: 'bar' }, { audience: audience, confidential: false }, function(err, t) {
           token = t;
           done(err);
         });
@@ -125,7 +181,7 @@ describe('seal', function() {
       });
       
       it('should generate a token', function() {
-        expect(token.length).to.be.above(0);
+        expect(token.length).to.equal(99);
         expect(token.substr(0, 2)).to.equal('ey');
         
         var tkn = jws.decode(token);
@@ -150,16 +206,16 @@ describe('seal', function() {
           expect(valid).to.be.true;
         });
       });
-    }); // encrypting arbitrary claims to audience using shared key for HMAC SHA256
+    }); // signing arbitrary claims to audience using HMAC SHA-256
     
-    describe('encrypting arbitrary claims to audience using private key for RSA-256', function() {
+    describe('signing arbitrary claims to audience using RSA-256', function() {
       var token;
       before(function(done) {
         var audience = [ {
           id: 'https://api.example.com/'
         } ];
         
-        seal({ foo: 'bar' }, { audience: audience }, function(err, t) {
+        seal({ foo: 'bar' }, { audience: audience, confidential: false }, function(err, t) {
           token = t;
           done(err);
         });
@@ -182,7 +238,7 @@ describe('seal', function() {
       });
       
       it('should generate a token', function() {
-        expect(token.length).to.be.above(0);
+        expect(token.length).to.equal(243);
         expect(token.substr(0, 2)).to.equal('ey');
         
         var tkn = jws.decode(token);
@@ -208,7 +264,7 @@ describe('seal', function() {
           expect(valid).to.be.true;
         });
       });
-    }); // encrypting arbitrary claims to audience using private key for RSA-256
+    }); // signing arbitrary claims to audience using RSA-256
     
   }); // using defaults
   

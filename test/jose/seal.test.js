@@ -326,18 +326,45 @@ describe('jose/seal', function() {
         expect(tkn.all[0].cty).to.equal('json');
       });
       
-      /*
       describe('verifying token', function() {
-        var valid;
-        before(function() {
-          valid = jws.verify(token, 'HS256', '12abcdef7890abcdef7890abcdef7890');
+        var header, protected, claims;
+        before(function(done) {
+          var jwk = {
+            kty: 'oct',
+            kid: '1',
+            k: jose.util.base64url.encode('12abcdef7890abcdef7890abcdef7890')
+          };
+          
+          var keystore = jose.JWK.createKeyStore();
+          keystore.add(jwk).
+            then(function() {
+              return jose.JWS.createVerify(keystore).verify(token);
+            }).
+            then(function(result) {
+              header = result.header;
+              protected = result.protected;
+              claims = JSON.parse(result.payload.toString());
+              done();
+            });
         });
         
-        it('should be valid', function() {
-          expect(valid).to.be.true;
+        it('should have correct header', function() {
+          expect(header).to.be.an('object');
+          expect(Object.keys(header)).to.have.length(4);
+          expect(header.typ).to.equal('JOSE+JSON');
+          expect(header.kid).to.equal('1');
+          expect(header.alg).to.equal('HS256');
+          expect(header.cty).to.equal('json');
+          
+          expect(protected).to.deep.equal(['typ', 'cty', 'alg', 'kid']);
+        });
+        
+        it('should have correct claims', function() {
+          expect(claims).to.be.an('object');
+          expect(Object.keys(claims)).to.have.length(1);
+          expect(claims.foo).to.equal('bar');
         });
       });
-      */
     }); // signing arbitrary claims
     
     describe('signing arbitrary claims to single audience using HMAC SHA-256', function() {

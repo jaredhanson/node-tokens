@@ -5,7 +5,7 @@ var setup = require('../../lib/jwt/seal')
   , sinon = require('sinon');
 
 
-describe('seal', function() {
+describe('jwt/seal', function() {
   
   it('should export generator', function() {
     expect(setup).to.be.a('function');

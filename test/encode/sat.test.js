@@ -33,11 +33,20 @@ describe('seal', function() {
           } ]);
           
         case 'https://api.example.com/asym/256':
-          return cb(null, [ {
-            id: '13',
-            privateKey: fs.readFileSync(__dirname + '/../keys/rsa/private-key.pem'),
-            algorithm: 'rsa-sha256'
-          } ]);
+          switch (q.usage) {
+          case 'sign':
+            return cb(null, [ {
+              id: '13',
+              privateKey: fs.readFileSync(__dirname + '/../keys/rsa/private-key.pem'),
+              algorithm: 'rsa-sha256'
+            } ]);
+          case 'encrypt':
+            return cb(null, [ {
+              id: '13',
+              publicKey: fs.readFileSync(__dirname + '/../keys/rsa/cert.pem'),
+              algorithm: 'rsa-sha256'
+            } ]);
+          }
         }
       });
       
@@ -183,6 +192,78 @@ describe('seal', function() {
         });
       });
     }); // encrypting arbitrary claims to audience using AES-128 in CBC mode with HMAC SHA-256
+    
+    // WIP
+    describe('encrypting arbitrary claims to audience using RSA-256', function() {
+      var token;
+      before(function(done) {
+        var audience = [ {
+          id: 'https://api.example.com/asym/256',
+        } ];
+        
+        seal({ foo: 'bar' }, { audience: audience }, function(err, t) {
+          token = t;
+          done(err);
+        });
+      });
+      
+      after(function() {
+        keying.reset();
+      });
+      
+      it('should query for key', function() {
+        expect(keying.callCount).to.equal(1);
+        var call = keying.getCall(0);
+        expect(call.args[0]).to.deep.equal({
+          recipients: [ {
+            id: 'https://api.example.com/asym/256',
+          } ],
+          usage: 'encrypt',
+          algorithms: [ 'aes128-cbc-hmac-sha256' ]
+        });
+      });
+      
+      it('should generate a token', function() {
+        expect(token.length).to.equal(325);
+        expect(token.substr(0, 2)).to.equal('ey');
+        
+        var tkn = jose.parse(token);
+        
+        expect(tkn.header).to.be.an('object');
+        expect(Object.keys(tkn.header)).to.have.length(4);
+        expect(tkn.header.typ).to.equal('JWT');
+        expect(tkn.header.alg).to.equal('RSA-OAEP');
+        expect(tkn.header.enc).to.equal('A128CBC-HS256');
+        expect(tkn.header.kid).to.equal('13');
+      });
+      
+      /*
+      describe('verifying token', function() {
+        var claims;
+        before(function(done) {
+          var jwk = {
+            kty: 'oct',
+            k: jose.util.base64url.encode('API-12abcdef7890abcdef7890abcdef')
+          };
+          
+          var keystore = jose.JWK.createKeyStore();
+          keystore.add(jwk).
+            then(function() {
+              return jose.JWE.createDecrypt(keystore).decrypt(token);
+            }).
+            then(function(result) {
+              claims = JSON.parse(result.payload.toString());
+              done();
+            });
+        });
+        
+        it('should be valid', function() {
+          expect(claims).to.be.an('object');
+          expect(claims.foo).to.equal('bar');
+        });
+      });
+      */
+    }); // encrypting arbitrary claims to audience using RSA-256
     
     describe('signing arbitrary claims to self', function() {
       var token;

@@ -20,9 +20,6 @@ describe('jwt/unseal', function() {
         
         var sender = q.sender || {};
         
-        console.log('QUERY FOR KEY!');
-        console.log(q)
-        
         switch (sender.id) {
         case undefined: // self
           if (q.id == '1') {

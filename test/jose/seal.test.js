@@ -457,7 +457,7 @@ describe('jose/seal', function() {
       });
     }); // signing arbitrary claims to audience using HMAC SHA-256
     
-    describe.only('signing arbitrary claims to two recipients, both using HMAC SHA-256', function() {
+    describe('signing arbitrary claims to two recipients, both using HMAC SHA-256', function() {
       var token;
       before(function(done) {
         var audience = [ {
@@ -503,8 +503,6 @@ describe('jose/seal', function() {
       });
       
       it('should generate a token', function() {
-        console.log(token);
-        
         expect(token).to.be.an('object');
         expect(Object.keys(token)).to.have.length(2);
         
@@ -521,8 +519,6 @@ describe('jose/seal', function() {
         expect(token.signatures[1].signature).to.be.a('string');
         
         var tkn = jose.parse(token);
-        
-        console.log(tkn);
         
         expect(tkn.all).to.have.length(2);
         expect(tkn.all[0]).to.be.an('object');

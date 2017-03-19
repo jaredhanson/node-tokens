@@ -209,6 +209,134 @@ describe('jose/seal', function() {
     }); // encrypting arbitrary claims to audience using AES-128 in CBC mode with HMAC SHA-256
     */
     
+    describe.only('encrypting arbitrary claims to two recipients, both using HMAC SHA-256', function() {
+      var token;
+      before(function(done) {
+        var audience = [ {
+          id: 'https://api.example.com/sym/256',
+          secret: 'API-12abcdef7890abcdef7890abcdef'
+        }, {
+          id: 'https://api.example.net/sym/256',
+          secret: 'NET-12abcdef7890abcdef7890abcdef'
+        } ];
+        
+        seal({ foo: 'bar' }, { audience: audience }, function(err, t) {
+          token = t;
+          done(err);
+        });
+      });
+      
+      after(function() {
+        keying.reset();
+      });
+      
+      it('should query for keys', function() {
+        expect(keying.callCount).to.equal(2);
+        
+        var call = keying.getCall(0);
+        expect(call.args[0]).to.deep.equal({
+          recipients: [ {
+            id: 'https://api.example.com/sym/256',
+            secret: 'API-12abcdef7890abcdef7890abcdef'
+          } ],
+          usage: 'encrypt',
+          algorithms: [ 'aes128-cbc-hmac-sha256' ]
+        });
+        
+        var call = keying.getCall(1);
+        expect(call.args[0]).to.deep.equal({
+          recipients: [ {
+            id: 'https://api.example.net/sym/256',
+            secret: 'NET-12abcdef7890abcdef7890abcdef'
+          } ],
+          usage: 'encrypt',
+          algorithms: [ 'aes128-cbc-hmac-sha256' ]
+        });
+      });
+      
+      it('should generate a token', function() {
+        console.log('&&&&&& TOKEN')
+        console.log(token);
+        console.log(token.recipients);
+        
+        expect(token).to.be.an('object');
+        expect(Object.keys(token)).to.have.length(6);
+        
+        expect(token.protected).to.be.a('string');
+        expect(token.unprotected).to.be.an('object');
+        expect(token.unprotected).to.deep.equal({ enc: 'A128CBC-HS256' });
+        expect(token.iv).to.be.a('string');
+        expect(token.ciphertext).to.be.a('string');
+        expect(token.tag).to.be.a('string');
+        expect(token.recipients).to.be.an('array');
+        expect(token.recipients).to.have.length(2);
+        expect(token.recipients[0]).to.be.an('object');
+        expect(token.recipients[0].encrypted_key).to.be.a('string');
+        expect(token.recipients[0].header).to.be.an('object');
+        expect(token.recipients[0].header).to.deep.equal({ alg: 'A256KW' });
+        expect(token.recipients[1]).to.be.an('object');
+        expect(token.recipients[1].encrypted_key).to.be.a('string');
+        expect(token.recipients[1].header).to.be.an('object');
+        expect(token.recipients[1].header).to.deep.equal({ alg: 'A256KW' });
+        
+        var tkn = jose.parse(token);
+        
+        expect(tkn.all).to.have.length(2);
+        expect(tkn.all[0]).to.be.an('object');
+        expect(Object.keys(tkn.all[0])).to.have.length(4);
+        expect(tkn.all[0].typ).to.equal('JOSE+JSON');
+        expect(tkn.all[0].alg).to.equal('A256KW');
+        expect(tkn.all[0].enc).to.equal('A128CBC-HS256');
+        expect(tkn.all[0].cty).to.equal('json');
+        expect(Object.keys(tkn.all[1])).to.have.length(4);
+        expect(tkn.all[1].typ).to.equal('JOSE+JSON');
+        expect(tkn.all[1].alg).to.equal('A256KW');
+        expect(tkn.all[0].enc).to.equal('A128CBC-HS256');
+        expect(tkn.all[1].cty).to.equal('json');
+      });
+      
+      /*
+      describe('verifying token', function() {
+        var header, protected, claims;
+        before(function(done) {
+          var jwk = {
+            kty: 'oct',
+            k: jose.util.base64url.encode('API-12abcdef7890abcdef7890abcdef')
+          };
+          
+          var keystore = jose.JWK.createKeyStore();
+          keystore.add(jwk).
+            then(function() {
+              return jose.JWS.createVerify(keystore).verify(token);
+            }).
+            then(function(result) {
+              header = result.header;
+              protected = result.protected;
+              claims = JSON.parse(result.payload.toString());
+              done();
+            });
+        });
+        
+        it('should have correct header', function() {
+          expect(header).to.be.an('object');
+          expect(Object.keys(header)).to.have.length(3);
+          expect(header.typ).to.equal('JOSE+JSON');
+          expect(header.alg).to.equal('HS256');
+          expect(header.cty).to.equal('json');
+          
+          expect(protected).to.deep.equal(['typ', 'cty', 'alg']);
+        });
+        
+        it('should have correct claims', function() {
+          expect(claims).to.be.an('object');
+          expect(Object.keys(claims)).to.have.length(2);
+          expect(claims.iss).to.equal('https://as.example.com');
+          expect(claims.foo).to.equal('bar');
+        });
+      });
+      */
+    }); // signing arbitrary claims to audience using HMAC SHA-256
+    
     /*
     describe('encrypting arbitrary claims to audience using RSA-OAEP', function() {
       var token;

@@ -16,7 +16,7 @@ describe('jwt/seal', function() {
     
     before(function() {
       keying = sinon.spy(function(q, cb){
-        var recip = q.recipients[0];
+        var recip = q.recipient;
         
         switch (recip.id) {
         case 'https://www.example.com':
@@ -74,9 +74,9 @@ describe('jwt/seal', function() {
         expect(keying.callCount).to.equal(1);
         var call = keying.getCall(0);
         expect(call.args[0]).to.deep.equal({
-          recipients: [ {
+          recipient: {
             id: 'https://www.example.com'
-          } ],
+          },
           usage: 'encrypt',
           algorithms: [ 'aes128-cbc-hmac-sha256' ]
         });
@@ -145,10 +145,10 @@ describe('jwt/seal', function() {
         expect(keying.callCount).to.equal(1);
         var call = keying.getCall(0);
         expect(call.args[0]).to.deep.equal({
-          recipients: [ {
+          recipient: {
             id: 'https://api.example.com/sym/256',
             secret: 'API-12abcdef7890abcdef7890abcdef'
-          } ],
+          },
           usage: 'encrypt',
           algorithms: [ 'aes128-cbc-hmac-sha256' ]
         });
@@ -214,9 +214,9 @@ describe('jwt/seal', function() {
         expect(keying.callCount).to.equal(1);
         var call = keying.getCall(0);
         expect(call.args[0]).to.deep.equal({
-          recipients: [ {
+          recipient: {
             id: 'https://api.example.com/asym/256',
-          } ],
+          },
           usage: 'encrypt',
           algorithms: [ 'aes128-cbc-hmac-sha256' ]
         });
@@ -283,9 +283,9 @@ describe('jwt/seal', function() {
         expect(keying.callCount).to.equal(1);
         var call = keying.getCall(0);
         expect(call.args[0]).to.deep.equal({
-          recipients: [ {
+          recipient: {
             id: 'https://www.example.com'
-          } ],
+          },
           usage: 'sign',
           algorithms: [ 'hmac-sha256', 'rsa-sha256' ]
         });
@@ -342,10 +342,10 @@ describe('jwt/seal', function() {
         expect(keying.callCount).to.equal(1);
         var call = keying.getCall(0);
         expect(call.args[0]).to.deep.equal({
-          recipients: [ {
+          recipient: {
             id: 'https://api.example.com/sym/256',
             secret: 'API-12abcdef7890abcdef7890abcdef'
-          } ],
+          },
           usage: 'sign',
           algorithms: [ 'hmac-sha256', 'rsa-sha256' ]
         });
@@ -400,9 +400,9 @@ describe('jwt/seal', function() {
         expect(keying.callCount).to.equal(1);
         var call = keying.getCall(0);
         expect(call.args[0]).to.deep.equal({
-          recipients: [ {
+          recipient: {
             id: 'https://api.example.com/asym/256'
-          } ],
+          },
           usage: 'sign',
           algorithms: [ 'hmac-sha256', 'rsa-sha256' ]
         });

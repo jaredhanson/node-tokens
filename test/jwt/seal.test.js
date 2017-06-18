@@ -16,6 +16,14 @@ describe('jwt/seal', function() {
     
     before(function() {
       keying = sinon.spy(function(q, cb){
+        if (!q.recipient) {
+          return cb(null, [ {
+            id: '1',
+            secret: '12abcdef7890abcdef7890abcdef7890',
+            algorithm: q.usage == 'sign' ? 'hmac-sha256' : 'aes128-cbc-hmac-sha256'
+          } ]);
+        }
+        
         var recip = q.recipient;
         
         switch (recip.id) {
@@ -53,14 +61,14 @@ describe('jwt/seal', function() {
       seal = setup(keying);
     });
     
-    describe('encrypting arbitrary claims to self', function() {
+    describe('encrypting to self', function() {
       var token;
       before(function(done) {
         var audience = [ {
           id: 'https://www.example.com'
         } ];
         
-        seal({ foo: 'bar' }, { audience: audience }, function(err, t) {
+        seal({ foo: 'bar' }, function(err, t) {
           token = t;
           done(err);
         });
@@ -74,9 +82,7 @@ describe('jwt/seal', function() {
         expect(keying.callCount).to.equal(1);
         var call = keying.getCall(0);
         expect(call.args[0]).to.deep.equal({
-          recipient: {
-            id: 'https://www.example.com'
-          },
+          recipient: undefined,
           usage: 'encrypt',
           algorithms: [ 'aes128-cbc-hmac-sha256' ]
         });

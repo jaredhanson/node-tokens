@@ -16,6 +16,17 @@ describe('jose/seal', function() {
     
     before(function() {
       keying = sinon.spy(function(q, cb){
+        /*
+        if (!q.recipient) {
+          return cb(null, [ {
+            id: '1',
+            secret: '12abcdef7890abcdef7890abcdef7890',
+            algorithm: q.usage == 'sign' ? 'hmac-sha256' : 'aes128-cbc-hmac-sha256'
+          } ]);
+        }
+        */
+        
+        
         var recip = q.recipients[0];
         
         switch (recip.id) {
@@ -54,7 +65,7 @@ describe('jose/seal', function() {
       seal = setup(keying);
     });
     
-    describe('encrypting arbitrary claims to self', function() {
+    describe('encrypting to self', function() {
       var token;
       before(function(done) {
         var audience = [ {

@@ -27,13 +27,6 @@ describe('jwt/seal', function() {
         var recip = q.recipient;
         
         switch (recip.id) {
-        case 'https://www.example.com':
-          return cb(null, [ {
-            id: '1',
-            secret: '12abcdef7890abcdef7890abcdef7890',
-            algorithm: q.usage == 'sign' ? 'hmac-sha256' : 'aes128-cbc-hmac-sha256'
-          } ]);
-          
         case 'https://api.example.com/sym/256':
           return cb(null, [ {
             secret: recip.secret,
@@ -127,9 +120,9 @@ describe('jwt/seal', function() {
           expect(claims.foo).to.equal('bar');
         });
       });
-    }); // encrypting arbitrary claims
+    }); // encrypting to self
     
-    describe('encrypting arbitrary claims to audience using AES-128 in CBC mode with HMAC SHA-256', function() {
+    describe('encrypting to audience using AES-128 in CBC mode with SHA-256 HMAC', function() {
       var token;
       before(function(done) {
         var audience = [ {
@@ -197,9 +190,9 @@ describe('jwt/seal', function() {
           expect(claims.foo).to.equal('bar');
         });
       });
-    }); // encrypting arbitrary claims to audience using AES-128 in CBC mode with HMAC SHA-256
+    }); // encrypting to audience using AES-128 in CBC mode with SHA-256 HMAC
     
-    describe('encrypting arbitrary claims to audience using RSA-OAEP', function() {
+    describe('encrypting to audience using RSA-OAEP', function() {
       var token;
       before(function(done) {
         var audience = [ {
@@ -266,16 +259,12 @@ describe('jwt/seal', function() {
           expect(claims.foo).to.equal('bar');
         });
       });
-    }); // encrypting arbitrary claims to audience using RSA-OAEP
+    }); // encrypting to audience using RSA-OAEP
     
-    describe('signing arbitrary claims to self', function() {
+    describe('signing to self', function() {
       var token;
       before(function(done) {
-        var audience = [ {
-          id: 'https://www.example.com'
-        } ];
-        
-        seal({ foo: 'bar' }, { audience: audience, confidential: false }, function(err, t) {
+        seal({ foo: 'bar' }, { confidential: false }, function(err, t) {
           token = t;
           done(err);
         });
@@ -289,9 +278,7 @@ describe('jwt/seal', function() {
         expect(keying.callCount).to.equal(1);
         var call = keying.getCall(0);
         expect(call.args[0]).to.deep.equal({
-          recipient: {
-            id: 'https://www.example.com'
-          },
+          recipient: undefined,
           usage: 'sign',
           algorithms: [ 'hmac-sha256', 'rsa-sha256' ]
         });
@@ -324,7 +311,7 @@ describe('jwt/seal', function() {
           expect(valid).to.be.true;
         });
       });
-    }); // signing arbitrary claims
+    }); // signing to self
     
     describe('signing arbitrary claims to audience using HMAC SHA-256', function() {
       var token;

@@ -313,7 +313,7 @@ describe('jwt/seal', function() {
       });
     }); // signing to self
     
-    describe('signing arbitrary claims to audience using HMAC SHA-256', function() {
+    describe('signing to audience using SHA-256 HMAC', function() {
       var token;
       before(function(done) {
         var audience = [ {

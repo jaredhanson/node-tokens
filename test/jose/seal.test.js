@@ -27,13 +27,6 @@ describe('jose/seal', function() {
         var recip = q.recipient;
         
         switch (recip.id) {
-        case 'https://www.example.com':
-          return cb(null, [ {
-            id: '1',
-            secret: '12abcdef7890abcdef7890abcdef7890',
-            algorithm: q.usage == 'sign' ? 'hmac-sha256' : 'aes128-cbc-hmac-sha256'
-          } ]);
-          
         case 'https://api.example.com/sym/256':
         case 'https://api.example.net/sym/256':
           return cb(null, [ {
@@ -406,14 +399,14 @@ describe('jose/seal', function() {
     }); // encrypting arbitrary claims to audience using RSA-OAEP
     */
     
-    describe('signing arbitrary claims to self', function() {
+    describe('signing to self', function() {
       var token;
       before(function(done) {
         var audience = [ {
           id: 'https://www.example.com'
         } ];
         
-        seal({ foo: 'bar' }, { audience: audience, confidential: false }, function(err, t) {
+        seal({ foo: 'bar' }, { confidential: false }, function(err, t) {
           token = t;
           done(err);
         });
@@ -427,9 +420,7 @@ describe('jose/seal', function() {
         expect(keying.callCount).to.equal(1);
         var call = keying.getCall(0);
         expect(call.args[0]).to.deep.equal({
-          recipient: {
-            id: 'https://www.example.com'
-          },
+          recipient: undefined,
           usage: 'sign',
           algorithms: [ 'hmac-sha256', 'rsa-sha256' ]
         });
@@ -492,9 +483,9 @@ describe('jose/seal', function() {
           expect(claims.foo).to.equal('bar');
         });
       });
-    }); // signing arbitrary claims
+    }); // signing to self
     
-    describe('signing arbitrary claims to single audience using HMAC SHA-256', function() {
+    describe('signing to single recipient using SHA-256 HMAC', function() {
       var token;
       before(function(done) {
         var audience = [ {
@@ -581,9 +572,9 @@ describe('jose/seal', function() {
           expect(claims.foo).to.equal('bar');
         });
       });
-    }); // signing arbitrary claims to audience using HMAC SHA-256
+    }); // signing to single recipient using SHA-256 HMAC
     
-    describe('signing arbitrary claims to two recipients, both using HMAC SHA-256', function() {
+    describe('signing to two recipients, both using SHA-256 HMAC', function() {
       var token;
       before(function(done) {
         var audience = [ {
@@ -697,7 +688,7 @@ describe('jose/seal', function() {
         });
       });
       */
-    }); // signing arbitrary claims to audience using HMAC SHA-256
+    }); // signing to two recipients, both using SHA-256 HMAC
     
     /*
     describe('signing arbitrary claims to audience using RSA-256', function() {

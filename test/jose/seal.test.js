@@ -16,7 +16,6 @@ describe('jose/seal', function() {
     
     before(function() {
       keying = sinon.spy(function(q, cb){
-        /*
         if (!q.recipient) {
           return cb(null, [ {
             id: '1',
@@ -24,8 +23,6 @@ describe('jose/seal', function() {
             algorithm: q.usage == 'sign' ? 'hmac-sha256' : 'aes128-cbc-hmac-sha256'
           } ]);
         }
-        */
-        
         
         var recip = q.recipient;
         
@@ -72,7 +69,7 @@ describe('jose/seal', function() {
           id: 'https://www.example.com'
         } ];
         
-        seal({ foo: 'bar' }, { audience: audience }, function(err, t) {
+        seal({ foo: 'bar' }, function(err, t) {
           token = t;
           done(err);
         });
@@ -86,9 +83,7 @@ describe('jose/seal', function() {
         expect(keying.callCount).to.equal(1);
         var call = keying.getCall(0);
         expect(call.args[0]).to.deep.equal({
-          recipient: {
-            id: 'https://www.example.com'
-          },
+          recipient: undefined,
           usage: 'encrypt',
           algorithms: [ 'aes128-cbc-hmac-sha256' ]
         });
@@ -218,7 +213,7 @@ describe('jose/seal', function() {
     }); // encrypting arbitrary claims to audience using AES-128 in CBC mode with HMAC SHA-256
     */
     
-    describe('encrypting arbitrary claims to two recipients, both using HMAC SHA-256', function() {
+    describe('encrypting to two recipients, both using AES-128 in CBC mode with SHA-256 HMAC', function() {
       var token;
       before(function(done) {
         var audience = [ {
@@ -338,7 +333,7 @@ describe('jose/seal', function() {
         });
       });
       */
-    }); // signing arbitrary claims to audience using HMAC SHA-256
+    }); // encrypting to two recipients, both using AES-128 in CBC mode with SHA-256 HMAC
     
     /*
     describe('encrypting arbitrary claims to audience using RSA-OAEP', function() {

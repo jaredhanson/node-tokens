@@ -27,7 +27,7 @@ describe('jose/seal', function() {
         */
         
         
-        var recip = q.recipients[0];
+        var recip = q.recipient;
         
         switch (recip.id) {
         case 'https://www.example.com':
@@ -86,18 +86,15 @@ describe('jose/seal', function() {
         expect(keying.callCount).to.equal(1);
         var call = keying.getCall(0);
         expect(call.args[0]).to.deep.equal({
-          recipients: [ {
+          recipient: {
             id: 'https://www.example.com'
-          } ],
+          },
           usage: 'encrypt',
           algorithms: [ 'aes128-cbc-hmac-sha256' ]
         });
       });
       
       it('should generate a token with JSON Serialization', function() {
-        console.log(token)
-        console.log(token.recipients)
-        
         expect(token).to.be.an('object');
         expect(Object.keys(token)).to.have.length(6);
         expect(token.protected).to.be.a('string');
@@ -247,20 +244,20 @@ describe('jose/seal', function() {
         
         var call = keying.getCall(0);
         expect(call.args[0]).to.deep.equal({
-          recipients: [ {
+          recipient: {
             id: 'https://api.example.com/sym/256',
             secret: 'API-12abcdef7890abcdef7890abcdef'
-          } ],
+          },
           usage: 'encrypt',
           algorithms: [ 'aes128-cbc-hmac-sha256' ]
         });
         
         var call = keying.getCall(1);
         expect(call.args[0]).to.deep.equal({
-          recipients: [ {
+          recipient: {
             id: 'https://api.example.net/sym/256',
             secret: 'NET-12abcdef7890abcdef7890abcdef'
-          } ],
+          },
           usage: 'encrypt',
           algorithms: [ 'aes128-cbc-hmac-sha256' ]
         });
@@ -435,9 +432,9 @@ describe('jose/seal', function() {
         expect(keying.callCount).to.equal(1);
         var call = keying.getCall(0);
         expect(call.args[0]).to.deep.equal({
-          recipients: [ {
+          recipient: {
             id: 'https://www.example.com'
-          } ],
+          },
           usage: 'sign',
           algorithms: [ 'hmac-sha256', 'rsa-sha256' ]
         });
@@ -524,10 +521,10 @@ describe('jose/seal', function() {
         expect(keying.callCount).to.equal(1);
         var call = keying.getCall(0);
         expect(call.args[0]).to.deep.equal({
-          recipients: [ {
+          recipient: {
             id: 'https://api.example.com/sym/256',
             secret: 'API-12abcdef7890abcdef7890abcdef'
-          } ],
+          },
           usage: 'sign',
           algorithms: [ 'hmac-sha256', 'rsa-sha256' ]
         });
@@ -617,20 +614,20 @@ describe('jose/seal', function() {
         
         var call = keying.getCall(0);
         expect(call.args[0]).to.deep.equal({
-          recipients: [ {
+          recipient: {
             id: 'https://api.example.com/sym/256',
             secret: 'API-12abcdef7890abcdef7890abcdef'
-          } ],
+          },
           usage: 'sign',
           algorithms: [ 'hmac-sha256', 'rsa-sha256' ]
         });
         
         var call = keying.getCall(1);
         expect(call.args[0]).to.deep.equal({
-          recipients: [ {
+          recipient: {
             id: 'https://api.example.net/sym/256',
             secret: 'NET-12abcdef7890abcdef7890abcdef'
-          } ],
+          },
           usage: 'sign',
           algorithms: [ 'hmac-sha256', 'rsa-sha256' ]
         });

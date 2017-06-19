@@ -402,10 +402,6 @@ describe('jose/seal', function() {
     describe('signing to self', function() {
       var token;
       before(function(done) {
-        var audience = [ {
-          id: 'https://www.example.com'
-        } ];
-        
         seal({ foo: 'bar' }, { confidential: false }, function(err, t) {
           token = t;
           done(err);

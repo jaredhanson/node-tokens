@@ -752,4 +752,4 @@ describe('jose/seal', function() {
     
   }); // using defaults
   
-});
+}); // jose/seal

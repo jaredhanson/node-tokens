@@ -27,6 +27,12 @@ describe('jwt/seal', function() {
         var recip = q.recipient;
         
         switch (recip.id) {
+        case 'https://api.example.com/jwe/A128CBC-HS256':
+          return cb(null, [ {
+            secret: recip.secret,
+            algorithm: q.usage == 'sign' ? 'hmac-sha256' : 'aes128-cbc-hmac-sha256'
+          } ]);
+          
         case 'https://api.example.com/jws/HS256':
           return cb(null, [ {
             secret: recip.secret,
@@ -126,7 +132,7 @@ describe('jwt/seal', function() {
       var token;
       before(function(done) {
         var audience = [ {
-          id: 'https://api.example.com/jws/HS256',
+          id: 'https://api.example.com/jwe/A128CBC-HS256',
           secret: 'API-12abcdef7890abcdef7890abcdef'
         } ];
         
@@ -145,7 +151,7 @@ describe('jwt/seal', function() {
         var call = keying.getCall(0);
         expect(call.args[0]).to.deep.equal({
           recipient: {
-            id: 'https://api.example.com/jws/HS256',
+            id: 'https://api.example.com/jwe/A128CBC-HS256',
             secret: 'API-12abcdef7890abcdef7890abcdef'
           },
           usage: 'encrypt',
@@ -569,4 +575,4 @@ describe('jwt/seal', function() {
   
   
   
-});
+}); // jwt/seal

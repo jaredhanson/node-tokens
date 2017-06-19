@@ -39,6 +39,12 @@ describe('jwt/seal', function() {
             algorithm: q.usage == 'sign' ? 'hmac-sha256' : 'aes128-cbc-hmac-sha256'
           } ]);
           
+        case 'https://api.example.com/jws/HS512':
+          return cb(null, [ {
+            secret: '12abcdef7890abcdef7890abcdef789012abcdef7890abcdef7890abcdef7890',
+            algorithm: 'hmac-sha512'
+          } ]);
+          
         case 'https://api.example.com/jws/RS256':
           switch (q.usage) {
           case 'sign':
@@ -377,6 +383,63 @@ describe('jwt/seal', function() {
         });
       });
     }); // signing to audience using HMAC SHA-256
+    
+    describe('signing to audience using SHA-512 HMAC', function() {
+      var token;
+      before(function(done) {
+        var audience = [ {
+          id: 'https://api.example.com/jws/HS512'
+        } ];
+        
+        seal({ foo: 'bar' }, { audience: audience, confidential: false }, function(err, t) {
+          token = t;
+          done(err);
+        });
+      });
+      
+      after(function() {
+        keying.reset();
+      });
+      
+      it('should query for key', function() {
+        expect(keying.callCount).to.equal(1);
+        var call = keying.getCall(0);
+        expect(call.args[0]).to.deep.equal({
+          recipient: {
+            id: 'https://api.example.com/jws/HS512'
+          },
+          usage: 'sign',
+          algorithms: [ 'hmac-sha256', 'rsa-sha256' ]
+        });
+      });
+      
+      it('should generate a token', function() {
+        expect(token.length).to.equal(142);
+        expect(token.substr(0, 2)).to.equal('ey');
+        
+        var tkn = jws.decode(token);
+        
+        expect(tkn.header).to.be.an('object');
+        expect(Object.keys(tkn.header)).to.have.length(2);
+        expect(tkn.header.typ).to.equal('JWT');
+        expect(tkn.header.alg).to.equal('HS512');
+        
+        expect(tkn.payload).to.be.an('object');
+        expect(Object.keys(tkn.payload)).to.have.length(1);
+        expect(tkn.payload.foo).to.equal('bar');
+      });
+      
+      describe('verifying token', function() {
+        var valid;
+        before(function() {
+          valid = jws.verify(token, 'HS512', '12abcdef7890abcdef7890abcdef789012abcdef7890abcdef7890abcdef7890');
+        });
+        
+        it('should be valid', function() {
+          expect(valid).to.be.true;
+        });
+      });
+    }); // signing to audience using HMAC SHA-512
     
     describe('signing to audience using RSA-256', function() {
       var token;

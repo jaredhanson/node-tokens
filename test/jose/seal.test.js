@@ -28,6 +28,7 @@ describe('jose/seal', function() {
         
         switch (recip.id) {
         case 'https://api.example.com/jws/HS256':
+        case 'https://api.example.net/jws/HS256':
           return cb(null, [ {
             secret: recip.secret,
             algorithm: q.usage == 'sign' ? 'hmac-sha256' : 'aes128-cbc-hmac-sha256'
@@ -580,10 +581,10 @@ describe('jose/seal', function() {
       var token;
       before(function(done) {
         var audience = [ {
-          id: 'https://api.example.com/sym/256',
+          id: 'https://api.example.com/jws/HS256',
           secret: 'API-12abcdef7890abcdef7890abcdef'
         }, {
-          id: 'https://api.example.net/sym/256',
+          id: 'https://api.example.net/jws/HS256',
           secret: 'NET-12abcdef7890abcdef7890abcdef'
         } ];
         
@@ -603,7 +604,7 @@ describe('jose/seal', function() {
         var call = keying.getCall(0);
         expect(call.args[0]).to.deep.equal({
           recipient: {
-            id: 'https://api.example.com/sym/256',
+            id: 'https://api.example.com/jws/HS256',
             secret: 'API-12abcdef7890abcdef7890abcdef'
           },
           usage: 'sign',
@@ -613,7 +614,7 @@ describe('jose/seal', function() {
         var call = keying.getCall(1);
         expect(call.args[0]).to.deep.equal({
           recipient: {
-            id: 'https://api.example.net/sym/256',
+            id: 'https://api.example.net/jws/HS256',
             secret: 'NET-12abcdef7890abcdef7890abcdef'
           },
           usage: 'sign',

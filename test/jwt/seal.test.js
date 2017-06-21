@@ -30,7 +30,7 @@ describe('jwt/seal', function() {
         case 'https://api.example.com/jwe/A256KW/A128CBC-HS256':
           return cb(null, [ {
             secret: recip.secret,
-            algorithm: q.usage == 'sign' ? 'hmac-sha256' : 'aes128-cbc-hmac-sha256'
+            algorithm: 'aes128-cbc-hmac-sha256'
           } ]);
           
         case 'https://api.example.com/jwe/RSA-OAEP/A128CBC-HS256':
@@ -53,22 +53,11 @@ describe('jwt/seal', function() {
           } ]);
           
         case 'https://api.example.com/jws/RS256':
-          switch (q.usage) {
-          case 'sign':
-            return cb(null, [ {
-              id: '13',
-              privateKey: fs.readFileSync(__dirname + '/../keys/rsa/private-key.pem'),
-              algorithm: 'rsa-sha256'
-            } ]);
-            
-          /*
-          case 'encrypt':
-            return cb(null, [ {
-              id: '13',
-              publicKey: fs.readFileSync(__dirname + '/../keys/rsa/cert.pem'),
-              algorithm: 'rsa-sha256'
-            } ]);*/
-          }
+          return cb(null, [ {
+            id: '13',
+            privateKey: fs.readFileSync(__dirname + '/../keys/rsa/private-key.pem'),
+            algorithm: 'rsa-sha256'
+          } ]);
         }
       });
       

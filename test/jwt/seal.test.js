@@ -27,21 +27,28 @@ describe('jwt/seal', function() {
         var recip = q.recipient;
         
         switch (recip.id) {
-        case 'https://api.example.com/jwe/A128CBC-HS256':
+        case 'https://api.example.com/jwe/A256KW/A128CBC-HS256':
           return cb(null, [ {
             secret: recip.secret,
             algorithm: q.usage == 'sign' ? 'hmac-sha256' : 'aes128-cbc-hmac-sha256'
+          } ]);
+          
+        case 'https://api.example.com/jwe/RSA-OAEP/A128CBC-HS256':
+          return cb(null, [ {
+            id: '13',
+            publicKey: fs.readFileSync(__dirname + '/../keys/rsa/cert.pem'),
+            algorithm: 'rsa-sha256'
           } ]);
           
         case 'https://api.example.com/jws/HS256':
           return cb(null, [ {
             secret: recip.secret,
-            algorithm: q.usage == 'sign' ? 'hmac-sha256' : 'aes128-cbc-hmac-sha256'
+            algorithm: 'hmac-sha256'
           } ]);
           
         case 'https://api.example.com/jws/HS512':
           return cb(null, [ {
-            secret: '12abcdef7890abcdef7890abcdef789012abcdef7890abcdef7890abcdef7890',
+            secret: recip.secret,
             algorithm: 'hmac-sha512'
           } ]);
           
@@ -53,12 +60,14 @@ describe('jwt/seal', function() {
               privateKey: fs.readFileSync(__dirname + '/../keys/rsa/private-key.pem'),
               algorithm: 'rsa-sha256'
             } ]);
+            
+          /*
           case 'encrypt':
             return cb(null, [ {
               id: '13',
               publicKey: fs.readFileSync(__dirname + '/../keys/rsa/cert.pem'),
               algorithm: 'rsa-sha256'
-            } ]);
+            } ]);*/
           }
         }
       });
@@ -138,7 +147,7 @@ describe('jwt/seal', function() {
       var token;
       before(function(done) {
         var audience = [ {
-          id: 'https://api.example.com/jwe/A128CBC-HS256',
+          id: 'https://api.example.com/jwe/A256KW/A128CBC-HS256',
           secret: 'API-12abcdef7890abcdef7890abcdef'
         } ];
         
@@ -157,7 +166,7 @@ describe('jwt/seal', function() {
         var call = keying.getCall(0);
         expect(call.args[0]).to.deep.equal({
           recipient: {
-            id: 'https://api.example.com/jwe/A128CBC-HS256',
+            id: 'https://api.example.com/jwe/A256KW/A128CBC-HS256',
             secret: 'API-12abcdef7890abcdef7890abcdef'
           },
           usage: 'encrypt',
@@ -208,7 +217,7 @@ describe('jwt/seal', function() {
       var token;
       before(function(done) {
         var audience = [ {
-          id: 'https://api.example.com/jws/RS256',
+          id: 'https://api.example.com/jwe/RSA-OAEP/A128CBC-HS256',
         } ];
         
         seal({ foo: 'bar' }, { audience: audience }, function(err, t) {
@@ -226,7 +235,7 @@ describe('jwt/seal', function() {
         var call = keying.getCall(0);
         expect(call.args[0]).to.deep.equal({
           recipient: {
-            id: 'https://api.example.com/jws/RS256',
+            id: 'https://api.example.com/jwe/RSA-OAEP/A128CBC-HS256',
           },
           usage: 'encrypt',
           algorithms: [ 'aes128-cbc-hmac-sha256' ]
@@ -382,13 +391,14 @@ describe('jwt/seal', function() {
           expect(valid).to.be.true;
         });
       });
-    }); // signing to audience using HMAC SHA-256
+    }); // signing to audience using SHA-256 HMAC
     
     describe('signing to audience using SHA-512 HMAC', function() {
       var token;
       before(function(done) {
         var audience = [ {
-          id: 'https://api.example.com/jws/HS512'
+          id: 'https://api.example.com/jws/HS512',
+          secret: '12abcdef7890abcdef7890abcdef789012abcdef7890abcdef7890abcdef7890'
         } ];
         
         seal({ foo: 'bar' }, { audience: audience, confidential: false }, function(err, t) {
@@ -406,7 +416,8 @@ describe('jwt/seal', function() {
         var call = keying.getCall(0);
         expect(call.args[0]).to.deep.equal({
           recipient: {
-            id: 'https://api.example.com/jws/HS512'
+            id: 'https://api.example.com/jws/HS512',
+            secret: '12abcdef7890abcdef7890abcdef789012abcdef7890abcdef7890abcdef7890'
           },
           usage: 'sign',
           algorithms: [ 'hmac-sha256', 'rsa-sha256' ]
@@ -439,7 +450,7 @@ describe('jwt/seal', function() {
           expect(valid).to.be.true;
         });
       });
-    }); // signing to audience using HMAC SHA-512
+    }); // signing to audience using SHA-512 HMAC
     
     describe('signing to audience using RSA-256', function() {
       var token;

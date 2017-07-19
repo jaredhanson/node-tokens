@@ -30,7 +30,8 @@
     "jws": "3.x.x",
     "moment": "2.x.x",
     "node-jose": "^0.9.3",
-    "request": "2.x.x"
+    "request": "2.x.x",
+    "utils-merge": "^1.0.0"
   },
   "devDependencies": {
     "chai": "3.x.x",

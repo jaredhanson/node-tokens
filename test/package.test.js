@@ -5,8 +5,8 @@ var tokens = require('..');
 describe('tokens', function() {
   
   it('should export constructors', function() {
-    expect(tokens.Sealer).to.be.a('function');
-    expect(tokens.Unsealer).to.be.a('function');
+    expect(tokens.OldSealer).to.be.a('function');
+    expect(tokens.OldUnsealer).to.be.a('function');
   });
   
   it('should export JWT implementation', function() {

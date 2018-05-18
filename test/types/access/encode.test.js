@@ -28,8 +28,6 @@ describe('types/access/encode', function() {
       var encode = setup();
       encode(msg, function(err, c) {
         if (err) { return done(err); }
-        console.log(c)
-        
         claims = c;
         done();
       });

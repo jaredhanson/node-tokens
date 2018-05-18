@@ -2,7 +2,7 @@ include node_modules/@jaredhanson/make-node/main.mk
 
 
 SOURCES ?= lib/*.js lib/**/*.js
-TESTS ?= test/*.test.js test/**/*.test.js
+TESTS ?= test/*.test.js test/**/*.test.js test/**/**/*.test.js
 
 MOCHAFLAGS = --require ./test/bootstrap/node
 LCOVFILE = ./reports/coverage/lcov.info

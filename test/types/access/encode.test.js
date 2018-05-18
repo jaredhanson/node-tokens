@@ -41,6 +41,6 @@ describe('types/access/encode', function() {
         client_id: 's6BhdRkqt3',
       });
     });
-  }); // an authorization code
+  }); // an access token
   
 });

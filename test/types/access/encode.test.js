@@ -36,7 +36,6 @@ describe('types/access/encode', function() {
     it('should encode', function() {
       expect(claims).to.deep.equal({
         sub: '1',
-        aud: 'https://api.example.com/',
         scope: 'read:foo write:foo read:bar',
         client_id: 's6BhdRkqt3',
       });

@@ -71,7 +71,7 @@ describe('jwt/seal', function() {
           id: 'https://www.example.com'
         } ];
         
-        seal({ foo: 'bar' }, function(err, t) {
+        seal({ foo: 'bar' }, null, function(err, t) {
           token = t;
           done(err);
         });
@@ -140,7 +140,7 @@ describe('jwt/seal', function() {
           secret: 'API-12abcdef7890abcdef7890abcdef'
         } ];
         
-        seal({ foo: 'bar' }, { audience: audience }, function(err, t) {
+        seal({ foo: 'bar' }, audience, function(err, t) {
           token = t;
           done(err);
         });
@@ -209,7 +209,7 @@ describe('jwt/seal', function() {
           id: 'https://api.example.com/jwe/RSA-OAEP/A128CBC-HS256',
         } ];
         
-        seal({ foo: 'bar' }, { audience: audience }, function(err, t) {
+        seal({ foo: 'bar' }, audience, function(err, t) {
           token = t;
           done(err);
         });
@@ -274,7 +274,7 @@ describe('jwt/seal', function() {
     describe('signing to self', function() {
       var token;
       before(function(done) {
-        seal({ foo: 'bar' }, { confidential: false }, function(err, t) {
+        seal({ foo: 'bar' }, null, { confidential: false }, function(err, t) {
           token = t;
           done(err);
         });
@@ -331,7 +331,7 @@ describe('jwt/seal', function() {
           secret: 'API-12abcdef7890abcdef7890abcdef'
         } ];
         
-        seal({ foo: 'bar' }, { audience: audience, confidential: false }, function(err, t) {
+        seal({ foo: 'bar' }, audience, { confidential: false }, function(err, t) {
           token = t;
           done(err);
         });
@@ -390,7 +390,7 @@ describe('jwt/seal', function() {
           secret: '12abcdef7890abcdef7890abcdef789012abcdef7890abcdef7890abcdef7890'
         } ];
         
-        seal({ foo: 'bar' }, { audience: audience, confidential: false }, function(err, t) {
+        seal({ foo: 'bar' }, audience, { confidential: false }, function(err, t) {
           token = t;
           done(err);
         });
@@ -448,7 +448,7 @@ describe('jwt/seal', function() {
           id: 'https://api.example.com/jws/RS256'
         } ];
         
-        seal({ foo: 'bar' }, { audience: audience, confidential: false }, function(err, t) {
+        seal({ foo: 'bar' }, audience, { confidential: false }, function(err, t) {
           token = t;
           done(err);
         });

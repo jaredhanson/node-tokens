@@ -66,14 +66,11 @@ describe('jwt/unseal', function() {
       });
       
       it('should parse token', function() {
-        expect(tkn).to.be.an('object');
-        expect(Object.keys(tkn)).to.have.length(3);
-        
-        expect(tkn.issuer).to.equal(undefined);
-        expect(tkn.headers).to.deep.equal({
-          issuer: undefined,
-        });
-        expect(tkn.claims).to.deep.equal({
+        //expect(tkn.issuer).to.equal(undefined);
+        //expect(tkn.headers).to.deep.equal({
+          //issuer: undefined,
+          //});
+        expect(tkn).to.deep.equal({
           foo: 'bar',
         });
       });

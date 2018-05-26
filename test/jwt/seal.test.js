@@ -12,59 +12,6 @@ describe('jwt/seal', function() {
   });
   
   describe('using defaults', function() {
-    var seal, keying;
-    
-    before(function() {
-      keying = sinon.spy(function(entity, q, cb){
-        //if (!q.recipient) {
-        if (!entity) {
-          return cb(null, {
-            id: '1',
-            secret: '12abcdef7890abcdef7890abcdef7890',
-            algorithm: q.usage == 'sign' ? 'hmac-sha256' : 'aes128-cbc-hmac-sha256'
-          });
-        }
-        
-        //var recip = q.recipient;
-        var recip = entity;
-        
-        switch (recip.id) {
-        case 'https://api.example.com/jwe/A256KW/A128CBC-HS256':
-          return cb(null, {
-            secret: recip.secret,
-            algorithm: 'aes128-cbc-hmac-sha256'
-          });
-          
-        case 'https://api.example.com/jwe/RSA-OAEP/A128CBC-HS256':
-          return cb(null, {
-            id: '13',
-            publicKey: fs.readFileSync(__dirname + '/../keys/rsa/cert.pem'),
-            algorithm: 'rsa-sha256'
-          });
-          
-        case 'https://api.example.com/jws/HS256':
-          return cb(null, {
-            secret: recip.secret,
-            algorithm: 'hmac-sha256'
-          });
-          
-        case 'https://api.example.com/jws/HS512':
-          return cb(null, {
-            secret: recip.secret,
-            algorithm: 'hmac-sha512'
-          });
-          
-        case 'https://api.example.com/jws/RS256':
-          return cb(null, {
-            id: '13',
-            privateKey: fs.readFileSync(__dirname + '/../keys/rsa/private-key.pem'),
-            algorithm: 'rsa-sha256'
-          });
-        }
-      });
-      
-      seal = setup(keying);
-    });
     
     describe('signing to self', function() {
       var token;
@@ -442,11 +389,19 @@ describe('jwt/seal', function() {
     
     describe('encrypting to audience using RSA-OAEP', function() {
       var token;
+      
+      var keying = sinon.stub().yields(null, {
+        id: '13',
+        publicKey: fs.readFileSync(__dirname + '/../keys/rsa/cert.pem'),
+        algorithm: 'rsa-sha256'
+      });
+      
       before(function(done) {
         var audience = [ {
           id: 'https://api.example.com/jwe/RSA-OAEP/A128CBC-HS256',
         } ];
         
+        var seal = setup(keying);
         seal({ foo: 'bar' }, audience, function(err, t) {
           token = t;
           done(err);

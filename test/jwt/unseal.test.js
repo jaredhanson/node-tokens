@@ -11,32 +11,13 @@ describe('jwt/unseal', function() {
     expect(setup).to.be.a('function');
   });
   
-  describe('using defaults', function() {
-    var unseal, keying;
-    
-    before(function() {
-      keying = sinon.spy(function(entity, q, cb){
-        //var recip = q.recipients[0];
-        
-        var sender = q.sender || {};
-        
-        switch (sender.id) {
-        case undefined: // self
-          if (q.id == '1') {
-            return cb(null, {
-              id: '1',
-              secret: '12abcdef7890abcdef7890abcdef7890',
-              algorithm: q.usage == 'verify' ? 'hmac-sha256' : 'aes128-cbc-hmac-sha256'
-            });
-          }
-        };
-      });
-      
-      unseal = setup(keying);
-    });
+  describe('defaults', function() {
     
     describe('verifying arbitrary claims to self', function() {
-      var tkn;
+      var claims, conditions;
+      
+      var keying = sinon.stub().yields(null, { id: '1', secret: '12abcdef7890abcdef7890abcdef7890' });
+      
       before(function(done) {
         var audience = [ {
           id: 'https://www.example.com'
@@ -44,14 +25,12 @@ describe('jwt/unseal', function() {
         
         var token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImtpZCI6IjEifQ.eyJmb28iOiJiYXIifQ.pF2mdgldyc9az-iY82Lc90L1EYbX4AUnuPzhT6982KQ';
         
-        unseal(token, {}, function(err, t) {
-          tkn = t;
+        var unseal = setup(keying);
+        unseal(token, {}, function(err, c, co) {
+          claims = c;
+          conditions = co;
           done(err);
         });
-      });
-      
-      after(function() {
-        keying.reset();
       });
       
       it('should query for key', function() {
@@ -66,12 +45,13 @@ describe('jwt/unseal', function() {
       });
       
       it('should parse token', function() {
-        //expect(tkn.issuer).to.equal(undefined);
-        //expect(tkn.headers).to.deep.equal({
-          //issuer: undefined,
-          //});
-        expect(tkn).to.deep.equal({
+        expect(claims).to.deep.equal({
           foo: 'bar',
+        });
+      });
+      
+      it('should yield conditions', function() {
+        expect(conditions).to.deep.equal({
         });
       });
     }); // verifying arbitrary claims to self

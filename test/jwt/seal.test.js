@@ -17,47 +17,47 @@ describe('jwt/seal', function() {
     before(function() {
       keying = sinon.spy(function(entity, q, cb){
         if (!q.recipient) {
-          return cb(null, [ {
+          return cb(null, {
             id: '1',
             secret: '12abcdef7890abcdef7890abcdef7890',
             algorithm: q.usage == 'sign' ? 'hmac-sha256' : 'aes128-cbc-hmac-sha256'
-          } ]);
+          });
         }
         
         var recip = q.recipient;
         
         switch (recip.id) {
         case 'https://api.example.com/jwe/A256KW/A128CBC-HS256':
-          return cb(null, [ {
+          return cb(null, {
             secret: recip.secret,
             algorithm: 'aes128-cbc-hmac-sha256'
-          } ]);
+          });
           
         case 'https://api.example.com/jwe/RSA-OAEP/A128CBC-HS256':
-          return cb(null, [ {
+          return cb(null, {
             id: '13',
             publicKey: fs.readFileSync(__dirname + '/../keys/rsa/cert.pem'),
             algorithm: 'rsa-sha256'
-          } ]);
+          });
           
         case 'https://api.example.com/jws/HS256':
-          return cb(null, [ {
+          return cb(null, {
             secret: recip.secret,
             algorithm: 'hmac-sha256'
-          } ]);
+          });
           
         case 'https://api.example.com/jws/HS512':
-          return cb(null, [ {
+          return cb(null, {
             secret: recip.secret,
             algorithm: 'hmac-sha512'
-          } ]);
+          });
           
         case 'https://api.example.com/jws/RS256':
-          return cb(null, [ {
+          return cb(null, {
             id: '13',
             privateKey: fs.readFileSync(__dirname + '/../keys/rsa/private-key.pem'),
             algorithm: 'rsa-sha256'
-          } ]);
+          });
         }
       });
       

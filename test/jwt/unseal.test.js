@@ -23,11 +23,11 @@ describe('jwt/unseal', function() {
         switch (sender.id) {
         case undefined: // self
           if (q.id == '1') {
-            return cb(null, [ {
+            return cb(null, {
               id: '1',
               secret: '12abcdef7890abcdef7890abcdef7890',
               algorithm: q.usage == 'verify' ? 'hmac-sha256' : 'aes128-cbc-hmac-sha256'
-            } ]);
+            });
           }
         };
       });

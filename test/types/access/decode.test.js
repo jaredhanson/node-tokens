@@ -9,7 +9,6 @@ describe('types/access/decode', function() {
     before(function(done) {
       var claims = {
         sub: '1',
-        aud: 'https://api.example.com/',
         scope: 'read:foo write:foo read:bar',
         client_id: 's6BhdRkqt3',
       }

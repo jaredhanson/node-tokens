@@ -4,7 +4,7 @@ var setup = require('../../../lib/types/access/decode');
 describe('types/access/decode', function() {
   
   describe('an access token', function() {
-    var message;
+    var msg;
     
     before(function(done) {
       var claims = {
@@ -14,16 +14,17 @@ describe('types/access/decode', function() {
       }
       
       var decode = setup();
-      decode(claims, {}, function(err, m) {
+      decode(claims, function(err, m) {
         if (err) { return done(err); }
-        message = m;
+        msg = m;
         done();
       });
     });
     
     it('should decode', function() {
-      expect(message).to.deep.equal({
+      expect(msg).to.deep.equal({
         user: { id: '1' },
+        scope: [ 'read:foo', 'write:foo', 'read:bar' ],
         client: { id: 's6BhdRkqt3' },
       });
     });

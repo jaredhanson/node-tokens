@@ -15,7 +15,7 @@ describe('jwt/unseal', function() {
     var unseal, keying;
     
     before(function() {
-      keying = sinon.spy(function(q, cb){
+      keying = sinon.spy(function(entity, q, cb){
         //var recip = q.recipients[0];
         
         var sender = q.sender || {};
@@ -57,7 +57,7 @@ describe('jwt/unseal', function() {
       it('should query for key', function() {
         expect(keying.callCount).to.equal(1);
         var call = keying.getCall(0);
-        expect(call.args[0]).to.deep.equal({
+        expect(call.args[1]).to.deep.equal({
           sender: undefined,
           id: '1',
           usage: 'verify',

@@ -303,25 +303,23 @@ describe('jwt/seal', function() {
     
     describe('encrypting to self', function() {
       var token;
+      
+      var keying = sinon.stub().yields(null, { id: '1', secret: '12abcdef7890abcdef7890abcdef7890', algorithm: 'aes128-cbc-hmac-sha256' });
+      
       before(function(done) {
-        var audience = [ {
-          id: 'https://www.example.com'
-        } ];
-        
-        seal({ foo: 'bar' }, null, function(err, t) {
+        var seal = setup(keying);
+        seal({ foo: 'bar' }, { identifier: 'https://self-issued.me' }, function(err, t) {
           token = t;
           done(err);
         });
       });
       
-      after(function() {
-        keying.reset();
-      });
-      
       it('should query for key', function() {
         expect(keying.callCount).to.equal(1);
         var call = keying.getCall(0);
-        expect(call.args[0]).to.be.null;
+        expect(call.args[0]).to.deep.equal({
+          identifier: 'https://self-issued.me',
+        });
         expect(call.args[1]).to.deep.equal({
           usage: 'encrypt',
           algorithms: [ 'aes128-cbc-hmac-sha256' ]
@@ -329,7 +327,7 @@ describe('jwt/seal', function() {
       });
       
       it('should generate a token', function() {
-        expect(token.length).to.equal(204);
+        expect(token.length).to.equal(246);
         expect(token.substr(0, 2)).to.equal('ey');
         
         var tkn = jose.parse(token);
@@ -364,6 +362,8 @@ describe('jwt/seal', function() {
         
         it('should be valid', function() {
           expect(claims).to.be.an('object');
+          expect(Object.keys(claims)).to.have.length(2);
+          expect(claims.aud).to.equal('https://self-issued.me');
           expect(claims.foo).to.equal('bar');
         });
       });

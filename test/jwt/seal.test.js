@@ -73,7 +73,7 @@ describe('jwt/seal', function() {
       
       before(function(done) {
         var seal = setup(keying);
-        seal({ foo: 'bar' }, null, { confidential: false }, function(err, t) {
+        seal({ foo: 'bar' }, { identifier: 'https://self-issued.me' }, { confidential: false }, function(err, t) {
           token = t;
           done(err);
         });
@@ -82,7 +82,9 @@ describe('jwt/seal', function() {
       it('should query for key', function() {
         expect(keying.callCount).to.equal(1);
         var call = keying.getCall(0);
-        expect(call.args[0]).to.be.null;
+        expect(call.args[0]).to.deep.equal({
+          identifier: 'https://self-issued.me',
+        });
         expect(call.args[1]).to.deep.equal({
           usage: 'sign',
           algorithms: [ 'hmac-sha256', 'rsa-sha256' ]
@@ -90,7 +92,7 @@ describe('jwt/seal', function() {
       });
       
       it('should generate a token', function() {
-        expect(token.length).to.equal(113);
+        expect(token.length).to.equal(154);
         expect(token.substr(0, 2)).to.equal('ey');
         
         var tkn = jws.decode(token);
@@ -102,7 +104,8 @@ describe('jwt/seal', function() {
         expect(tkn.header.kid).to.equal('1');
         
         expect(tkn.payload).to.be.an('object');
-        expect(Object.keys(tkn.payload)).to.have.length(1);
+        expect(Object.keys(tkn.payload)).to.have.length(2);
+        expect(tkn.payload.aud).to.equal('https://self-issued.me');
         expect(tkn.payload.foo).to.equal('bar');
       });
       

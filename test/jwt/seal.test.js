@@ -67,15 +67,14 @@ describe('jwt/seal', function() {
     describe('signing to self', function() {
       var token;
       
+      var keying = sinon.stub().yields(null, { id: '1', secret: '12abcdef7890abcdef7890abcdef7890', algorithm: 'hmac-sha256' });
+      
       before(function(done) {
+        var seal = setup(keying);
         seal({ foo: 'bar' }, null, { confidential: false }, function(err, t) {
           token = t;
           done(err);
         });
-      });
-      
-      after(function() {
-        keying.reset();
       });
       
       it('should query for key', function() {
@@ -117,22 +116,22 @@ describe('jwt/seal', function() {
       });
     }); // signing to self
     
-    describe('signing to audience using SHA-256 HMAC', function() {
+    describe('signing to recipient using SHA-256 HMAC', function() {
       var token;
+      
+      var keying = sinon.stub().yields(null, { secret: 'API-12abcdef7890abcdef7890abcdef', algorithm: 'hmac-sha256' });
+      
       before(function(done) {
         var audience = [ {
           id: 'https://api.example.com/jws/HS256',
           secret: 'API-12abcdef7890abcdef7890abcdef'
         } ];
         
+        var seal = setup(keying);
         seal({ foo: 'bar' }, audience, { confidential: false }, function(err, t) {
           token = t;
           done(err);
         });
-      });
-      
-      after(function() {
-        keying.reset();
       });
       
       it('should query for key', function() {
@@ -174,7 +173,7 @@ describe('jwt/seal', function() {
           expect(valid).to.be.true;
         });
       });
-    }); // signing to audience using SHA-256 HMAC
+    }); // signing to recipient using SHA-256 HMAC
     
     describe('encrypting to self', function() {
       var token;

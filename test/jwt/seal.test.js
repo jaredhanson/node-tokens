@@ -64,6 +64,118 @@ describe('jwt/seal', function() {
       seal = setup(keying);
     });
     
+    describe('signing to self', function() {
+      var token;
+      
+      before(function(done) {
+        seal({ foo: 'bar' }, null, { confidential: false }, function(err, t) {
+          token = t;
+          done(err);
+        });
+      });
+      
+      after(function() {
+        keying.reset();
+      });
+      
+      it('should query for key', function() {
+        expect(keying.callCount).to.equal(1);
+        var call = keying.getCall(0);
+        expect(call.args[0]).to.deep.equal({
+          recipient: undefined,
+          usage: 'sign',
+          algorithms: [ 'hmac-sha256', 'rsa-sha256' ]
+        });
+      });
+      
+      it('should generate a token', function() {
+        expect(token.length).to.equal(113);
+        expect(token.substr(0, 2)).to.equal('ey');
+        
+        var tkn = jws.decode(token);
+        
+        expect(tkn.header).to.be.an('object');
+        expect(Object.keys(tkn.header)).to.have.length(3);
+        expect(tkn.header.typ).to.equal('JWT');
+        expect(tkn.header.alg).to.equal('HS256');
+        expect(tkn.header.kid).to.equal('1');
+        
+        expect(tkn.payload).to.be.an('object');
+        expect(Object.keys(tkn.payload)).to.have.length(1);
+        expect(tkn.payload.foo).to.equal('bar');
+      });
+      
+      describe('verifying token', function() {
+        var valid;
+        before(function() {
+          valid = jws.verify(token, 'HS256', '12abcdef7890abcdef7890abcdef7890');
+        });
+        
+        it('should be valid', function() {
+          expect(valid).to.be.true;
+        });
+      });
+    }); // signing to self
+    
+    describe('signing to audience using SHA-256 HMAC', function() {
+      var token;
+      before(function(done) {
+        var audience = [ {
+          id: 'https://api.example.com/jws/HS256',
+          secret: 'API-12abcdef7890abcdef7890abcdef'
+        } ];
+        
+        seal({ foo: 'bar' }, audience, { confidential: false }, function(err, t) {
+          token = t;
+          done(err);
+        });
+      });
+      
+      after(function() {
+        keying.reset();
+      });
+      
+      it('should query for key', function() {
+        expect(keying.callCount).to.equal(1);
+        var call = keying.getCall(0);
+        expect(call.args[0]).to.deep.equal({
+          recipient: {
+            id: 'https://api.example.com/jws/HS256',
+            secret: 'API-12abcdef7890abcdef7890abcdef'
+          },
+          usage: 'sign',
+          algorithms: [ 'hmac-sha256', 'rsa-sha256' ]
+        });
+      });
+      
+      it('should generate a token', function() {
+        expect(token.length).to.equal(99);
+        expect(token.substr(0, 2)).to.equal('ey');
+        
+        var tkn = jws.decode(token);
+        
+        expect(tkn.header).to.be.an('object');
+        expect(Object.keys(tkn.header)).to.have.length(2);
+        expect(tkn.header.typ).to.equal('JWT');
+        expect(tkn.header.alg).to.equal('HS256');
+        
+        expect(tkn.payload).to.be.an('object');
+        expect(Object.keys(tkn.payload)).to.have.length(1);
+        expect(tkn.payload.foo).to.equal('bar');
+      });
+      
+      describe('verifying token', function() {
+        var valid;
+        before(function() {
+          valid = jws.verify(token, 'HS256', 'API-12abcdef7890abcdef7890abcdef');
+        });
+        
+        it('should be valid', function() {
+          expect(valid).to.be.true;
+        });
+      });
+    }); // signing to audience using SHA-256 HMAC
+    
     describe('encrypting to self', function() {
       var token;
       before(function(done) {
@@ -270,117 +382,6 @@ describe('jwt/seal', function() {
         });
       });
     }); // encrypting to audience using RSA-OAEP
-    
-    describe('signing to self', function() {
-      var token;
-      before(function(done) {
-        seal({ foo: 'bar' }, null, { confidential: false }, function(err, t) {
-          token = t;
-          done(err);
-        });
-      });
-      
-      after(function() {
-        keying.reset();
-      });
-      
-      it('should query for key', function() {
-        expect(keying.callCount).to.equal(1);
-        var call = keying.getCall(0);
-        expect(call.args[0]).to.deep.equal({
-          recipient: undefined,
-          usage: 'sign',
-          algorithms: [ 'hmac-sha256', 'rsa-sha256' ]
-        });
-      });
-      
-      it('should generate a token', function() {
-        expect(token.length).to.equal(113);
-        expect(token.substr(0, 2)).to.equal('ey');
-        
-        var tkn = jws.decode(token);
-        
-        expect(tkn.header).to.be.an('object');
-        expect(Object.keys(tkn.header)).to.have.length(3);
-        expect(tkn.header.typ).to.equal('JWT');
-        expect(tkn.header.alg).to.equal('HS256');
-        expect(tkn.header.kid).to.equal('1');
-        
-        expect(tkn.payload).to.be.an('object');
-        expect(Object.keys(tkn.payload)).to.have.length(1);
-        expect(tkn.payload.foo).to.equal('bar');
-      });
-      
-      describe('verifying token', function() {
-        var valid;
-        before(function() {
-          valid = jws.verify(token, 'HS256', '12abcdef7890abcdef7890abcdef7890');
-        });
-        
-        it('should be valid', function() {
-          expect(valid).to.be.true;
-        });
-      });
-    }); // signing to self
-    
-    describe('signing to audience using SHA-256 HMAC', function() {
-      var token;
-      before(function(done) {
-        var audience = [ {
-          id: 'https://api.example.com/jws/HS256',
-          secret: 'API-12abcdef7890abcdef7890abcdef'
-        } ];
-        
-        seal({ foo: 'bar' }, audience, { confidential: false }, function(err, t) {
-          token = t;
-          done(err);
-        });
-      });
-      
-      after(function() {
-        keying.reset();
-      });
-      
-      it('should query for key', function() {
-        expect(keying.callCount).to.equal(1);
-        var call = keying.getCall(0);
-        expect(call.args[0]).to.deep.equal({
-          recipient: {
-            id: 'https://api.example.com/jws/HS256',
-            secret: 'API-12abcdef7890abcdef7890abcdef'
-          },
-          usage: 'sign',
-          algorithms: [ 'hmac-sha256', 'rsa-sha256' ]
-        });
-      });
-      
-      it('should generate a token', function() {
-        expect(token.length).to.equal(99);
-        expect(token.substr(0, 2)).to.equal('ey');
-        
-        var tkn = jws.decode(token);
-        
-        expect(tkn.header).to.be.an('object');
-        expect(Object.keys(tkn.header)).to.have.length(2);
-        expect(tkn.header.typ).to.equal('JWT');
-        expect(tkn.header.alg).to.equal('HS256');
-        
-        expect(tkn.payload).to.be.an('object');
-        expect(Object.keys(tkn.payload)).to.have.length(1);
-        expect(tkn.payload.foo).to.equal('bar');
-      });
-      
-      describe('verifying token', function() {
-        var valid;
-        before(function() {
-          valid = jws.verify(token, 'HS256', 'API-12abcdef7890abcdef7890abcdef');
-        });
-        
-        it('should be valid', function() {
-          expect(valid).to.be.true;
-        });
-      });
-    }); // signing to audience using SHA-256 HMAC
     
     describe('signing to audience using SHA-512 HMAC', function() {
       var token;

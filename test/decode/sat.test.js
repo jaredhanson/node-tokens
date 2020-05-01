@@ -26,8 +26,8 @@ describe('decode.sat', function() {
     var claims;
   
     before(function(done) {
-      function keying(issuer, done) {
-        expect(issuer).to.equal('https://op.example.com/');
+      function keying(opts, done) {
+        expect(opts).to.deep.equal({ usage: 'verify' });
       
         return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
       }
@@ -63,8 +63,8 @@ describe('decode.sat', function() {
     var claims;
     
     before(function(done) {
-      function keying(issuer, done) {
-        expect(issuer).to.equal('https://op.example.com/');
+      function keying(opts, done) {
+        expect(opts).to.deep.equal({ usage: 'verify' });
         
         return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
       }
@@ -100,8 +100,8 @@ describe('decode.sat', function() {
     var claims;
     
     before(function(done) {
-      function keying(issuer, done) {
-        expect(issuer).to.equal('https://op.example.com/');
+      function keying(opts, done) {
+        expect(opts).to.deep.equal({ usage: 'verify' });
         
         return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
       }
@@ -138,8 +138,8 @@ describe('decode.sat', function() {
     var claims;
     
     before(function(done) {
-      function keying(issuer, done) {
-        expect(issuer).to.equal('https://op.example.com/');
+      function keying(opts, done) {
+        expect(opts).to.deep.equal({ usage: 'verify' });
         
         return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
       }
@@ -180,8 +180,8 @@ describe('decode.sat', function() {
     var claims;
     
     before(function(done) {
-      function keying(issuer, done) {
-        expect(issuer).to.equal('https://op.example.com/');
+      function keying(opts, done) {
+        expect(opts).to.deep.equal({ usage: 'verify' });
         
         return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
       }
@@ -220,8 +220,8 @@ describe('decode.sat', function() {
     var claims;
     
     before(function(done) {
-      function keying(issuer, done) {
-        expect(issuer).to.equal('https://op.example.com/');
+      function keying(opts, done) {
+        expect(opts).to.deep.equal({ usage: 'verify' });
         
         return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
       }
@@ -260,8 +260,8 @@ describe('decode.sat', function() {
     var claims;
     
     before(function(done) {
-      function keying(issuer, done) {
-        expect(issuer).to.equal('https://op.example.com/');
+      function keying(opts, done) {
+        expect(opts).to.deep.equal({ usage: 'verify' });
         
         return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
       }
@@ -300,8 +300,8 @@ describe('decode.sat', function() {
     var claims;
     
     before(function(done) {
-      function keying(issuer, done) {
-        expect(issuer).to.equal('https://op.example.com/');
+      function keying(opts, done) {
+        expect(opts).to.deep.equal({ usage: 'verify' });
         
         return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
       }
@@ -340,8 +340,8 @@ describe('decode.sat', function() {
     var claims;
     
     before(function(done) {
-      function keying(issuer, done) {
-        expect(issuer).to.equal('https://op.example.com/');
+      function keying(opts, done) {
+        expect(opts).to.deep.equal({ usage: 'verify' });
         
         return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
       }
@@ -381,8 +381,8 @@ describe('decode.sat', function() {
     var claims;
     
     before(function(done) {
-      function keying(issuer, done) {
-        expect(issuer).to.equal('https://op.example.com/');
+      function keying(opts, done) {
+        expect(opts).to.deep.equal({ usage: 'verify' });
         
         return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
       }
@@ -422,8 +422,8 @@ describe('decode.sat', function() {
     var error, claims;
     
     before(function(done) {
-      function keying(issuer, done) {
-        expect(issuer).to.equal('https://op.example.com/');
+      function keying(opts, done) {
+        expect(opts).to.deep.equal({ usage: 'verify' });
         
         return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
       }
@@ -458,8 +458,8 @@ describe('decode.sat', function() {
     var claims;
     
     before(function(done) {
-      function keying(issuer, done) {
-        expect(issuer).to.equal('https://op.example.com/');
+      function keying(opts, done) {
+        expect(opts).to.deep.equal({ usage: 'verify' });
         
         return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
       }
@@ -499,8 +499,8 @@ describe('decode.sat', function() {
     var claims;
     
     before(function(done) {
-      function keying(issuer, done) {
-        expect(issuer).to.equal('https://op.example.com/');
+      function keying(opts, done) {
+        expect(opts).to.deep.equal({ usage: 'verify' });
         
         return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
       }
@@ -616,8 +616,8 @@ describe('decode.sat', function() {
     var claims, error;
     
     before(function(done) {
-      function keying(issuer, done) {
-        expect(issuer).to.equal('https://op.example.com/');
+      function keying(opts, done) {
+        expect(opts).to.deep.equal({ usage: 'verify' });
         
         return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
       }
@@ -651,8 +651,8 @@ describe('decode.sat', function() {
     var claims, error;
   
     before(function(done) {
-      function keying(issuer, done) {
-        expect(issuer).to.equal('https://op.example.com/');
+      function keying(opts, done) {
+        expect(opts).to.deep.equal({ usage: 'verify' });
       
         return fs.readFile(__dirname + '/../keys/unused/cert.pem', 'utf8', done);
       }
@@ -686,8 +686,8 @@ describe('decode.sat', function() {
     var claims, error;
   
     before(function(done) {
-      function keying(issuer, done) {
-        expect(issuer).to.equal('https://op.example.com/');
+      function keying(opts, done) {
+        expect(opts).to.deep.equal({ usage: 'verify' });
       
         return fs.readFile(__dirname + '/../keys/dsa/cert.pem', 'utf8', done);
       }
@@ -721,8 +721,8 @@ describe('decode.sat', function() {
     var claims, error;
   
     before(function(done) {
-      function keying(issuer, done) {
-        expect(issuer).to.equal('https://op.example.com/');
+      function keying(opts, done) {
+        expect(opts).to.deep.equal({ usage: 'verify' });
       
         process.nextTick(function() {
           done(null, 'FUBAR');
@@ -763,7 +763,7 @@ describe('decode.sat', function() {
     var claims, error;
   
     before(function(done) {
-      function keying(issuer, done) {
+      function keying(opts, done) {
         return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
       }
       var decode = sat(keying);
@@ -791,8 +791,8 @@ describe('decode.sat', function() {
     var claims, error;
     
     before(function(done) {
-      function keying(issuer, done) {
-        expect(issuer).to.equal('https://op.example.com/');
+      function keying(opts, done) {
+        expect(opts).to.deep.equal({ usage: 'verify' });
         
         return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
       }
@@ -821,8 +821,8 @@ describe('decode.sat', function() {
     var claims, error;
     
     before(function(done) {
-      function keying(issuer, done) {
-        expect(issuer).to.equal('https://op.example.com/');
+      function keying(opts, done) {
+        expect(opts).to.deep.equal({ usage: 'verify' });
         
         return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
       }
@@ -851,8 +851,8 @@ describe('decode.sat', function() {
     var claims, error;
     
     before(function(done) {
-      function keying(issuer, done) {
-        expect(issuer).to.equal('https://op.example.com/');
+      function keying(opts, done) {
+        expect(opts).to.deep.equal({ usage: 'verify' });
         
         return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
       }
@@ -881,8 +881,8 @@ describe('decode.sat', function() {
     var claims, error;
     
     before(function(done) {
-      function keying(issuer, done) {
-        expect(issuer).to.equal('https://op.example.com/');
+      function keying(opts, done) {
+        expect(opts).to.deep.equal({ usage: 'verify' });
         
         return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
       }
@@ -917,8 +917,8 @@ describe('decode.sat', function() {
     var claims, error;
     
     before(function(done) {
-      function keying(issuer, done) {
-        expect(issuer).to.equal('https://op.example.com/');
+      function keying(opts, done) {
+        expect(opts).to.deep.equal({ usage: 'verify' });
         
         return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
       }
@@ -953,8 +953,8 @@ describe('decode.sat', function() {
     var claims, error;
     
     before(function(done) {
-      function keying(issuer, done) {
-        expect(issuer).to.equal('https://op.example.com/');
+      function keying(opts, done) {
+        expect(opts).to.deep.equal({ usage: 'verify' });
         
         return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
       }
@@ -983,8 +983,8 @@ describe('decode.sat', function() {
     var claims, error;
     
     before(function(done) {
-      function keying(issuer, done) {
-        expect(issuer).to.equal('https://op.example.com/');
+      function keying(opts, done) {
+        expect(opts).to.deep.equal({ usage: 'verify' });
         
         return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
       }
@@ -1013,8 +1013,8 @@ describe('decode.sat', function() {
     var claims, error;
     
     before(function(done) {
-      function keying(issuer, done) {
-        expect(issuer).to.equal('https://op.example.com/');
+      function keying(opts, done) {
+        expect(opts).to.deep.equal({ usage: 'verify' });
         
         return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
       }
@@ -1043,8 +1043,8 @@ describe('decode.sat', function() {
     var claims, error;
     
     before(function(done) {
-      function keying(issuer, done) {
-        expect(issuer).to.equal('https://op.example.com/');
+      function keying(opts, done) {
+        expect(opts).to.deep.equal({ usage: 'verify' });
         
         return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
       }
@@ -1076,7 +1076,7 @@ describe('decode.sat', function() {
     var claims, error;
     
     before(function(done) {
-      function keying(issuer, done) {
+      function keying(opts, done) {
         process.nextTick(function() {
           return done(new Error('something went wrong'));
         });
@@ -1111,7 +1111,7 @@ describe('decode.sat', function() {
     var claims, error;
     
     before(function(done) {
-      function keying(issuer, done) {
+      function keying(opts, done) {
         throw new Error('something went horribly wrong');
       }
       var decode = sat({ audience: 'https://rp.example.com/' }, keying);
@@ -1146,8 +1146,8 @@ describe('decode.sat', function() {
       var claims;
     
       before(function(done) {
-        function keying(issuer, done) {
-          expect(issuer).to.equal('https://op.example.com/');
+        function keying(opts, done) {
+          expect(opts).to.deep.equal({ usage: 'verify' });
         
           return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
         }
@@ -1183,8 +1183,8 @@ describe('decode.sat', function() {
       var claims;
     
       before(function(done) {
-        function keying(issuer, done) {
-          expect(issuer).to.equal('https://op.example.com/');
+        function keying(opts, done) {
+          expect(opts).to.deep.equal({ usage: 'verify' });
         
           return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
         }
@@ -1222,8 +1222,8 @@ describe('decode.sat', function() {
       var claims, error;
     
       before(function(done) {
-        function keying(issuer, done) {
-          expect(issuer).to.equal('https://op.example.com/');
+        function keying(opts, done) {
+          expect(opts).to.deep.equal({ usage: 'verify' });
         
           return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
         }
@@ -1258,8 +1258,8 @@ describe('decode.sat', function() {
       var claims, error;
     
       before(function(done) {
-        function keying(issuer, done) {
-          expect(issuer).to.equal('https://op.example.com/');
+        function keying(opts, done) {
+          expect(opts).to.deep.equal({ usage: 'verify' });
         
           return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
         }
@@ -1297,8 +1297,8 @@ describe('decode.sat', function() {
       var claims;
     
       before(function(done) {
-        function keying(issuer, done) {
-          expect(issuer).to.equal('https://op.example.com/');
+        function keying(opts, done) {
+          expect(opts).to.deep.equal({ usage: 'verify' });
         
           return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
         }
@@ -1334,8 +1334,8 @@ describe('decode.sat', function() {
       var claims;
     
       before(function(done) {
-        function keying(issuer, done) {
-          expect(issuer).to.equal('https://op.example.com/');
+        function keying(opts, done) {
+          expect(opts).to.deep.equal({ usage: 'verify' });
         
           return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
         }
@@ -1373,8 +1373,8 @@ describe('decode.sat', function() {
       var claims, error;
     
       before(function(done) {
-        function keying(issuer, done) {
-          expect(issuer).to.equal('https://op.example.com/');
+        function keying(opts, done) {
+          expect(opts).to.deep.equal({ usage: 'verify' });
         
           return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
         }
@@ -1409,8 +1409,8 @@ describe('decode.sat', function() {
       var claims, error;
     
       before(function(done) {
-        function keying(issuer, done) {
-          expect(issuer).to.equal('https://op.example.com/');
+        function keying(opts, done) {
+          expect(opts).to.deep.equal({ usage: 'verify' });
         
           return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
         }
@@ -1435,5 +1435,56 @@ describe('decode.sat', function() {
     });
     
   });
-  
+
+  describe('with extraAttrs list option', function() {
+    
+    describe('decoding a valid SAT', function() {
+      // header = { alg: 'RS256' }
+      // body = { iss: 'https://op.example.com/',
+      //          sub: 'mailto:bob@example.com',
+      //          aud: 'https://rp.example.com/',
+      //          exp: 7702588800,
+      //          foo: 'thefoo',
+      //          bar: 'thebar',
+      //          baz: 'thebaz' }
+      var data = 'eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL29wLmV4YW1wbGUuY29tLyIsInN1YiI6Im1haWx0bzpib2JAZXhhbXBsZS5jb20iLCJhdWQiOiJodHRwczovL3JwLmV4YW1wbGUuY29tLyIsImV4cCI6NzcwMjU4ODgwMCwiZm9vIjoidGhlZm9vIiwiYmFyIjoidGhlYmFyIiwiYmF6IjoidGhlYmF6In0.Mhcmys9ufJA05flCfogbFI__3Ws3gjlsQgTGzVru3h6yg3Z_XsHsZGIKReXWKKid6juT_UAVixAzKfrN8lWdeBFTyHqDJZqK1E8zXfswU39xwWtKD2hPzw2PEKtc5NjQ8o-T2EZTMPqV8zwUy6v-sxvOAKMp01-fC2iZQuK8IF0';
+      var claims, extra;
+    
+      before(function(done) {
+        function keying(opts, done) {
+          expect(opts).to.deep.equal({ usage: 'verify' });
+        
+          return fs.readFile(__dirname + '/../keys/rsa/cert.pem', 'utf8', done);
+        }
+        var decode = sat({ extraAttrs: [ 'foo', 'bar', 'qux' ] }, keying);
+      
+        decode(data, function(err, c, e) {
+          if (err) { return done(err); }
+          claims = c;
+          extra = e;
+          done();
+        });
+      });
+    
+      it('should decode token', function() {
+        expect(claims).to.be.an('object');
+        expect(Object.keys(claims)).to.have.length(4);
+      
+        expect(claims.issuer).to.equal('https://op.example.com/');
+        expect(claims.subject).to.equal('mailto:bob@example.com');
+        expect(claims.audience).to.be.an('array');
+        expect(claims.audience[0]).to.equal('https://rp.example.com/');
+        expect(claims.expiresAt).to.be.an.instanceOf(Date);
+        expect(claims.expiresAt.getTime()).to.equal(7702588800000);
+      });
+
+      it('should return extra object with requested attributes', function() {
+        expect(extra).to.be.an('object');
+        expect(Object.keys(extra)).to.have.length(2);
+      
+        expect(extra.foo).to.equal('thefoo');
+        expect(extra.bar).to.equal('thebar');
+      });
+    });
+  });
 });

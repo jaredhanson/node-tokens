@@ -3,13 +3,13 @@ var setup = require('../../../lib/types/access/decode');
 
 describe('types/access/decode', function() {
   
-  describe('an access token', function() {
+  describe('an access token with scope', function() {
     var msg;
     
     before(function(done) {
       var claims = {
-        sub: '1',
-        scope: 'read:foo write:foo read:bar',
+        sub: '248289761001',
+        scope: 'profile email',
         client_id: 's6BhdRkqt3',
       }
       
@@ -23,9 +23,9 @@ describe('types/access/decode', function() {
     
     it('should decode', function() {
       expect(msg).to.deep.equal({
-        user: { id: '1' },
-        scope: [ 'read:foo', 'write:foo', 'read:bar' ],
+        user: { id: '248289761001' },
         client: { id: 's6BhdRkqt3' },
+        scope: [ 'profile', 'email' ],
       });
     });
   }); // an access token

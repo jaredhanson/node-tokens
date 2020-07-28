@@ -3,26 +3,20 @@ var setup = require('../../../lib/types/access/encode');
 
 describe('types/access/encode', function() {
   
-  describe('an access token', function() {
+  describe('an access token with scope', function() {
     var claims;
     
     before(function(done) {
       var msg = {
         user: {
-          id: '1',
+          id: '248289761001',
           displayName: 'John Doe'
         },
         client: {
           id: 's6BhdRkqt3',
           name: 'Example Client'
         },
-        permissions: [ {
-          resource: {
-            id: '112210f47de98100',
-            identifier: 'https://api.example.com/'
-          },
-          scope: [ 'read:foo', 'write:foo', 'read:bar' ]
-        } ]
+        scope: [ 'profile', 'email' ]
       }
       
       var encode = setup();
@@ -35,9 +29,9 @@ describe('types/access/encode', function() {
     
     it('should encode', function() {
       expect(claims).to.deep.equal({
-        sub: '1',
-        scope: 'read:foo write:foo read:bar',
+        sub: '248289761001',
         client_id: 's6BhdRkqt3',
+        scope: 'profile email'
       });
     });
   }); // an access token

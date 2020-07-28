@@ -28,6 +28,6 @@ describe('types/access/decode', function() {
         scope: [ 'profile', 'email' ],
       });
     });
-  }); // an access token
+  }); // an access token with scope
   
 });

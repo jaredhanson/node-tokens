@@ -1,4 +1,4 @@
-var setup = require('../../../lib/types/access/decode');
+var setup = require('../../../lib/jwt/dialect');
 
 
 describe('types/access/decode', function() {
@@ -13,8 +13,8 @@ describe('types/access/decode', function() {
         client_id: 's6BhdRkqt3',
       }
       
-      var decode = setup();
-      decode(claims, function(err, m) {
+      var dialect = setup();
+      dialect.decode(claims, function(err, m) {
         if (err) { return done(err); }
         msg = m;
         done();

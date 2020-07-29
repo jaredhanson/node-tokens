@@ -1,4 +1,4 @@
-var setup = require('../../../lib/types/access/encode');
+var setup = require('../../../lib/jwt/dialect');
 
 
 describe('types/access/encode', function() {
@@ -19,8 +19,8 @@ describe('types/access/encode', function() {
         scope: [ 'profile', 'email' ]
       }
       
-      var encode = setup();
-      encode(msg, function(err, c) {
+      var dialect = setup();
+      dialect.encode(msg, function(err, c) {
         if (err) { return done(err); }
         claims = c;
         done();

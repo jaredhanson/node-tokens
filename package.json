@@ -27,6 +27,7 @@
   "main": "./lib",
   "dependencies": {
     "debug": "2.x.x",
+    "deepmerge": "^4.2.2",
     "jws": "3.x.x",
     "moment": "2.x.x",
     "node-jose": "^0.11.1",

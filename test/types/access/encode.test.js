@@ -19,7 +19,7 @@ describe('types/access/encode', function() {
         scope: [ 'profile', 'email' ]
       }
       
-      var dialect = setup();
+      var dialect = setup([ require('../../../lib/jwt/claims/access')() ]);
       dialect.encode(msg, function(err, c) {
         if (err) { return done(err); }
         claims = c;

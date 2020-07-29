@@ -15,7 +15,7 @@ describe('jwt/dialect', function() {
           scope: 'profile email'
         }
       
-        var dialect = setup();
+        var dialect = setup([ require('../../lib/jwt/claims/access')() ]);
         dialect.decode(claims, function(err, m) {
           if (err) { return done(err); }
           msg = m;

@@ -230,12 +230,11 @@ describe('jwt/seal', function() {
       });
     }); // signing to recipient with HS512
     
-    describe('signing to recipient using RSA-256', function() {
+    describe('signing to recipient with RS256', function() {
       var token;
       
       var keying = sinon.stub().yields(null, {
-        id: '13',
-        privateKey: fs.readFileSync(__dirname + '/../keys/rsa/private-key.pem'),
+        key: fs.readFileSync(__dirname + '/../keys/rsa/private-key.pem'),
         algorithm: 'rsa-sha256'
       });
       
@@ -245,7 +244,7 @@ describe('jwt/seal', function() {
         } ];
         
         var seal = setup(keying);
-        seal({ foo: 'bar' }, { recipients: recipients, confidential: false }, function(err, t) {
+        seal({ beep: 'boop' }, { recipients: recipients, confidential: false }, function(err, t) {
           token = t;
           done(err);
         });
@@ -264,20 +263,19 @@ describe('jwt/seal', function() {
       });
       
       it('should generate a token', function() {
-        expect(token.length).to.equal(242);
+        expect(token.length).to.equal(229);
         expect(token.substr(0, 2)).to.equal('ey');
         
         var tkn = jws.decode(token);
         
         expect(tkn.header).to.be.an('object');
-        expect(Object.keys(tkn.header)).to.have.length(3);
+        expect(Object.keys(tkn.header)).to.have.length(2);
         expect(tkn.header.typ).to.equal('JWT');
         expect(tkn.header.alg).to.equal('RS256');
-        expect(tkn.header.kid).to.equal('13');
         
         expect(tkn.payload).to.be.an('object');
         expect(Object.keys(tkn.payload)).to.have.length(1);
-        expect(tkn.payload.foo).to.equal('bar');
+        expect(tkn.payload.beep).to.equal('boop');
       });
       
       describe('verifying token', function() {
@@ -290,7 +288,7 @@ describe('jwt/seal', function() {
           expect(valid).to.be.true;
         });
       });
-    }); // signing to recipient using RSA-256
+    }); // signing to recipient with RS256
     
     describe('encrypting to self', function() {
       var token;

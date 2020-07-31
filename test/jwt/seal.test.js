@@ -243,11 +243,11 @@ describe('jwt/seal', function() {
     describe('encrypting to self', function() {
       var token;
       
-      var keying = sinon.stub().yields(null, { id: '1', secret: '12abcdef7890abcdef7890abcdef7890', algorithm: 'aes128-cbc-hmac-sha256' });
+      var keying = sinon.stub().yields(null, { secret: '12abcdef7890abcdef7890abcdef7890' });
       
       before(function(done) {
         var seal = setup(keying);
-        seal({ foo: 'bar' }, [ { identifier: 'https://self-issued.me' } ], function(err, t) {
+        seal({ beep: 'boop' },  function(err, t) {
           token = t;
           done(err);
         });
@@ -256,9 +256,7 @@ describe('jwt/seal', function() {
       it('should query for key', function() {
         expect(keying.callCount).to.equal(1);
         var call = keying.getCall(0);
-        expect(call.args[0]).to.deep.equal({
-          identifier: 'https://self-issued.me',
-        });
+        expect(call.args[0]).to.be.undefined;
         expect(call.args[1]).to.deep.equal({
           usage: 'encrypt',
           algorithms: [ 'aes128-cbc-hmac-sha256' ]
@@ -266,17 +264,16 @@ describe('jwt/seal', function() {
       });
       
       it('should generate a token', function() {
-        expect(token.length).to.equal(246);
+        expect(token.length).to.equal(191);
         expect(token.substr(0, 2)).to.equal('ey');
         
         var tkn = jose.parse(token);
         
         expect(tkn.header).to.be.an('object');
-        expect(Object.keys(tkn.header)).to.have.length(4);
+        expect(Object.keys(tkn.header)).to.have.length(3);
         expect(tkn.header.typ).to.equal('JWT');
         expect(tkn.header.alg).to.equal('A256KW');
         expect(tkn.header.enc).to.equal('A128CBC-HS256');
-        expect(tkn.header.kid).to.equal('1');
       });
       
       describe('verifying token', function() {
@@ -284,7 +281,6 @@ describe('jwt/seal', function() {
         before(function(done) {
           var jwk = {
             kty: 'oct',
-            kid: '1',
             k: jose.util.base64url.encode('12abcdef7890abcdef7890abcdef7890')
           };
           
@@ -301,26 +297,24 @@ describe('jwt/seal', function() {
         
         it('should be valid', function() {
           expect(claims).to.be.an('object');
-          expect(Object.keys(claims)).to.have.length(2);
-          expect(claims.aud).to.equal('https://self-issued.me');
-          expect(claims.foo).to.equal('bar');
+          expect(Object.keys(claims)).to.have.length(1);
+          expect(claims.beep).to.equal('boop');
         });
       });
     }); // encrypting to self
     
-    describe('encrypting to audience using AES-128 in CBC mode with SHA-256 HMAC', function() {
+    describe('encrypting to recipient using AES-128 in CBC mode with SHA-256 HMAC', function() {
       var token;
       
       var keying = sinon.stub().yields(null, { secret: 'API-12abcdef7890abcdef7890abcdef', algorithm: 'aes128-cbc-hmac-sha256' });
       
       before(function(done) {
-        var audience = [ {
-          id: 'https://api.example.com/jwe/A256KW/A128CBC-HS256',
-          secret: 'API-12abcdef7890abcdef7890abcdef'
+        var recipients = [ {
+          location: 'https://api.example.com/'
         } ];
         
         var seal = setup(keying);
-        seal({ foo: 'bar' }, audience, function(err, t) {
+        seal({ beep: 'boop' }, recipients, function(err, t) {
           token = t;
           done(err);
         });
@@ -330,8 +324,7 @@ describe('jwt/seal', function() {
         expect(keying.callCount).to.equal(1);
         var call = keying.getCall(0);
         expect(call.args[0]).to.deep.equal({
-          id: 'https://api.example.com/jwe/A256KW/A128CBC-HS256',
-          secret: 'API-12abcdef7890abcdef7890abcdef'
+          location: 'https://api.example.com/'
         });
         expect(call.args[1]).to.deep.equal({
           usage: 'encrypt',
@@ -374,41 +367,37 @@ describe('jwt/seal', function() {
         it('should be valid', function() {
           expect(claims).to.be.an('object');
           expect(Object.keys(claims)).to.have.length(1);
-          expect(claims.foo).to.equal('bar');
+          expect(claims.beep).to.equal('boop');
         });
       });
-    }); // encrypting to audience using AES-128 in CBC mode with SHA-256 HMAC
+    }); // encrypting to recipient using AES-128 in CBC mode with SHA-256 HMAC
     
-    describe('encrypting to audience using RSA-OAEP', function() {
+    describe('encrypting to recipient using RSA-OAEP', function() {
       var token;
       
       var keying = sinon.stub().yields(null, {
-        id: '13',
-        publicKey: fs.readFileSync(__dirname + '/../keys/rsa/cert.pem'),
+        id: '1',
+        key: fs.readFileSync(__dirname + '/../keys/rsa/cert.pem'),
         algorithm: 'rsa-sha256'
       });
       
       before(function(done) {
-        var audience = [ {
-          id: 'https://api.example.com/jwe/RSA-OAEP/A128CBC-HS256',
+        var recipients = [ {
+          location: 'https://api.example.com/',
         } ];
         
         var seal = setup(keying);
-        seal({ foo: 'bar' }, audience, function(err, t) {
+        seal({ foo: 'bar' }, recipients, function(err, t) {
           token = t;
           done(err);
         });
-      });
-      
-      after(function() {
-        keying.reset();
       });
       
       it('should query for key', function() {
         expect(keying.callCount).to.equal(1);
         var call = keying.getCall(0);
         expect(call.args[0]).to.deep.equal({
-          id: 'https://api.example.com/jwe/RSA-OAEP/A128CBC-HS256'
+          location: 'https://api.example.com/'
         });
         expect(call.args[1]).to.deep.equal({
           usage: 'encrypt',
@@ -417,7 +406,7 @@ describe('jwt/seal', function() {
       });
       
       it('should generate a token', function() {
-        expect(token.length).to.equal(325);
+        expect(token.length).to.equal(324);
         expect(token.substr(0, 2)).to.equal('ey');
         
         var tkn = jose.parse(token);
@@ -427,7 +416,7 @@ describe('jwt/seal', function() {
         expect(tkn.header.typ).to.equal('JWT');
         expect(tkn.header.alg).to.equal('RSA-OAEP');
         expect(tkn.header.enc).to.equal('A128CBC-HS256');
-        expect(tkn.header.kid).to.equal('13');
+        expect(tkn.header.kid).to.equal('1');
       });
       
       describe('verifying token', function() {
@@ -437,7 +426,7 @@ describe('jwt/seal', function() {
           return jose.JWK.asKey(fs.readFileSync(__dirname + '/../keys/rsa/private-key.pem'), 'pem')
             .then(function(k) {
               var jwk = k.toJSON(true);
-              jwk.kid = '13';
+              jwk.kid = '1';
               return keystore.add(jwk);
             })
             .then(function() {
@@ -455,7 +444,7 @@ describe('jwt/seal', function() {
           expect(claims.foo).to.equal('bar');
         });
       });
-    }); // encrypting to audience using RSA-OAEP
+    }); // encrypting to recipient using RSA-OAEP
     
   }); // using defaults
   

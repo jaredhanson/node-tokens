@@ -64,58 +64,6 @@ describe('jwt/seal', function() {
       });
     }); // signing to self
     
-    describe('signing to self using specific key', function() {
-      var token;
-      
-      var keying = sinon.stub().yields(null, { id: '1', secret: '12abcdef7890abcdef7890abcdef7890' });
-      
-      before(function(done) {
-        var seal = setup(keying);
-        seal({ beep: 'boop' }, { confidential: false }, function(err, t) {
-          token = t;
-          done(err);
-        });
-      });
-      
-      it('should query for key', function() {
-        expect(keying.callCount).to.equal(1);
-        var call = keying.getCall(0);
-        expect(call.args[0]).to.be.undefined;
-        expect(call.args[1]).to.deep.equal({
-          usage: 'sign',
-          algorithms: [ 'hmac-sha256', 'rsa-sha256' ]
-        });
-      });
-      
-      it('should generate a token', function() {
-        expect(token.length).to.equal(115);
-        expect(token.substr(0, 2)).to.equal('ey');
-        
-        var tkn = jws.decode(token);
-        
-        expect(tkn.header).to.be.an('object');
-        expect(Object.keys(tkn.header)).to.have.length(3);
-        expect(tkn.header.typ).to.equal('JWT');
-        expect(tkn.header.alg).to.equal('HS256');
-        expect(tkn.header.kid).to.equal('1');
-        
-        expect(tkn.payload).to.be.an('object');
-        expect(Object.keys(tkn.payload)).to.have.length(1);
-        expect(tkn.payload.beep).to.equal('boop');
-      });
-      
-      describe('verifying token', function() {
-        var valid;
-        before(function() {
-          valid = jws.verify(token, 'HS256', '12abcdef7890abcdef7890abcdef7890');
-        });
-        
-        it('should be valid', function() {
-          expect(valid).to.be.true;
-        });
-      });
-    }); // signing to self using specific key
-    
     describe('signing to recipient with HS256', function() {
       var token;
       
@@ -234,6 +182,7 @@ describe('jwt/seal', function() {
       var token;
       
       var keying = sinon.stub().yields(null, {
+        id: '1',
         key: fs.readFileSync(__dirname + '/../keys/rsa/private-key.pem'),
         algorithm: 'rsa-sha256'
       });
@@ -263,14 +212,15 @@ describe('jwt/seal', function() {
       });
       
       it('should generate a token', function() {
-        expect(token.length).to.equal(229);
+        expect(token.length).to.equal(243);
         expect(token.substr(0, 2)).to.equal('ey');
         
         var tkn = jws.decode(token);
         
         expect(tkn.header).to.be.an('object');
-        expect(Object.keys(tkn.header)).to.have.length(2);
+        expect(Object.keys(tkn.header)).to.have.length(3);
         expect(tkn.header.typ).to.equal('JWT');
+        expect(tkn.header.kid).to.equal('1');
         expect(tkn.header.alg).to.equal('RS256');
         
         expect(tkn.payload).to.be.an('object');

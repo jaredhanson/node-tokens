@@ -40,8 +40,8 @@ describe('jose/seal', function() {
         expect(object).to.be.an('object');
         
         expect(Object.keys(object)).to.have.length(3);
-        expect(object.payload).to.be.a('string');
         expect(object.protected).to.be.a('string');
+        expect(object.payload).to.be.a('string');
         expect(object.signature).to.be.an('string');
         
         var st = jose.parse(object);
@@ -91,7 +91,93 @@ describe('jose/seal', function() {
         });
       });
     }); // signing to self
-  });
+    
+    describe('signing to recipient using HS256', function() { // SHA-256 HMAC
+      var object;
+      
+      var keying = sinon.stub().yields(null, { secret: 'API-12abcdef7890abcdef7890abcdef', algorithm: 'hmac-sha256' });
+      
+      before(function(done) {
+        var recipients = [ {
+          location: 'https://api.example.com/'
+        } ];
+        
+        var seal = setup(keying);
+        seal({ beep: 'boop' }, { recipients: recipients, confidential: false }, function(err, o) {
+          object = o;
+          done(err);
+        });
+      });
+      
+      it('should query for key', function() {
+        expect(keying.callCount).to.equal(1);
+        var call = keying.getCall(0);
+        expect(call.args[0]).to.deep.equal({
+          location: 'https://api.example.com/'
+        });
+        expect(call.args[1]).to.deep.equal({
+          usage: 'sign',
+          algorithms: [ 'hmac-sha256', 'rsa-sha256' ]
+        });
+      });
+      
+      it('should generate an object', function() {
+        expect(object).to.be.an('object');
+        
+        expect(Object.keys(object)).to.have.length(3);
+        expect(object.protected).to.be.a('string');
+        expect(object.payload).to.be.a('string');
+        expect(object.signature).to.be.an('string');
+        
+        var st = jose.parse(object);
+        
+        expect(st.all[0]).to.be.an('object');
+        expect(Object.keys(st.all[0])).to.have.length(3);
+        expect(st.all[0].typ).to.equal('JOSE+JSON');
+        expect(st.all[0].alg).to.equal('HS256');
+        expect(st.all[0].cty).to.equal('json');
+      });
+      
+      describe('verifying token', function() {
+        var header, protected, claims;
+        before(function(done) {
+          var jwk = {
+            kty: 'oct',
+            k: jose.util.base64url.encode('API-12abcdef7890abcdef7890abcdef')
+          };
+          
+          var keystore = jose.JWK.createKeyStore();
+          keystore.add(jwk)
+            .then(function() {
+              return jose.JWS.createVerify(keystore).verify(object);
+            })
+            .then(function(result) {
+              header = result.header;
+              protected = result.protected;
+              claims = JSON.parse(result.payload.toString());
+              done();
+            });
+        });
+        
+        it('should have correct header', function() {
+          expect(header).to.be.an('object');
+          expect(Object.keys(header)).to.have.length(3);
+          expect(header.typ).to.equal('JOSE+JSON');
+          expect(header.alg).to.equal('HS256');
+          expect(header.cty).to.equal('json');
+          
+          expect(protected).to.deep.equal(['typ', 'cty', 'alg']);
+        });
+        
+        it('should have correct claims', function() {
+          expect(claims).to.be.an('object');
+          expect(Object.keys(claims)).to.have.length(1);
+          expect(claims.beep).to.equal('boop');
+        });
+      });
+    }); // signing to recipient using HS256
+    
+  }); // defaults
   
   describe.skip('using defaults', function() {
     var seal, keying;
@@ -487,95 +573,6 @@ describe('jose/seal', function() {
       });
     }); // encrypting arbitrary claims to audience using RSA-OAEP
     */
-    
-    describe('signing to single recipient using SHA-256 HMAC', function() {
-      var token;
-      before(function(done) {
-        var audience = [ {
-          id: 'https://api.example.com/jws/HS256',
-          secret: 'API-12abcdef7890abcdef7890abcdef'
-        } ];
-        
-        seal({ foo: 'bar' }, { audience: audience, confidential: false }, function(err, t) {
-          token = t;
-          done(err);
-        });
-      });
-      
-      after(function() {
-        keying.reset();
-      });
-      
-      it('should query for key', function() {
-        expect(keying.callCount).to.equal(1);
-        var call = keying.getCall(0);
-        expect(call.args[0]).to.deep.equal({
-          recipient: {
-            id: 'https://api.example.com/jws/HS256',
-            secret: 'API-12abcdef7890abcdef7890abcdef'
-          },
-          usage: 'sign',
-          algorithms: [ 'hmac-sha256', 'rsa-sha256' ]
-        });
-      });
-      
-      it('should generate a token', function() {
-        expect(token).to.be.an('object');
-        expect(Object.keys(token)).to.have.length(3);
-        
-        expect(token.payload).to.be.a('string');
-        expect(token.protected).to.be.a('string');
-        expect(token.signature).to.be.an('string');
-        
-        var tkn = jose.parse(token);
-        
-        expect(tkn.all).to.have.length(1);
-        expect(tkn.all[0]).to.be.an('object');
-        expect(Object.keys(tkn.all[0])).to.have.length(3);
-        expect(tkn.all[0].typ).to.equal('JOSE+JSON');
-        expect(tkn.all[0].alg).to.equal('HS256');
-        expect(tkn.all[0].cty).to.equal('json');
-      });
-      
-      describe('verifying token', function() {
-        var header, protected, claims;
-        before(function(done) {
-          var jwk = {
-            kty: 'oct',
-            k: jose.util.base64url.encode('API-12abcdef7890abcdef7890abcdef')
-          };
-          
-          var keystore = jose.JWK.createKeyStore();
-          keystore.add(jwk).
-            then(function() {
-              return jose.JWS.createVerify(keystore).verify(token);
-            }).
-            then(function(result) {
-              header = result.header;
-              protected = result.protected;
-              claims = JSON.parse(result.payload.toString());
-              done();
-            });
-        });
-        
-        it('should have correct header', function() {
-          expect(header).to.be.an('object');
-          expect(Object.keys(header)).to.have.length(3);
-          expect(header.typ).to.equal('JOSE+JSON');
-          expect(header.alg).to.equal('HS256');
-          expect(header.cty).to.equal('json');
-          
-          expect(protected).to.deep.equal(['typ', 'cty', 'alg']);
-        });
-        
-        it('should have correct claims', function() {
-          expect(claims).to.be.an('object');
-          expect(Object.keys(claims)).to.have.length(2);
-          expect(claims.iss).to.equal('https://as.example.com');
-          expect(claims.foo).to.equal('bar');
-        });
-      });
-    }); // signing to single recipient using SHA-256 HMAC
     
     describe('signing to two recipients, both using SHA-256 HMAC', function() {
       var token;

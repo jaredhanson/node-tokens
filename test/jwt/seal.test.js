@@ -63,7 +63,7 @@ describe('jwt/seal', function() {
       });
     }); // signing to self
     
-    describe('signing to recipient with HS256', function() {
+    describe('signing to recipient using HS256', function() { // SHA-256 HMAC
       var token;
       
       var keying = sinon.stub().yields(null, { secret: 'API-12abcdef7890abcdef7890abcdef', algorithm: 'hmac-sha256' });
@@ -93,19 +93,18 @@ describe('jwt/seal', function() {
       });
       
       it('should generate a token', function() {
-        expect(token.length).to.equal(101);
-        expect(token.substr(0, 2)).to.equal('ey');
+        expect(token).to.be.a('string');
         
-        var tkn = jws.decode(token);
+        var st = jws.decode(token);
         
-        expect(tkn.header).to.be.an('object');
-        expect(Object.keys(tkn.header)).to.have.length(2);
-        expect(tkn.header.typ).to.equal('JWT');
-        expect(tkn.header.alg).to.equal('HS256');
+        expect(st.header).to.be.an('object');
+        expect(Object.keys(st.header)).to.have.length(2);
+        expect(st.header.typ).to.equal('JWT');
+        expect(st.header.alg).to.equal('HS256');
         
-        expect(tkn.payload).to.be.an('object');
-        expect(Object.keys(tkn.payload)).to.have.length(1);
-        expect(tkn.payload.beep).to.equal('boop');
+        expect(st.payload).to.be.an('object');
+        expect(Object.keys(st.payload)).to.have.length(1);
+        expect(st.payload.beep).to.equal('boop');
       });
       
       describe('verifying token', function() {
@@ -118,7 +117,7 @@ describe('jwt/seal', function() {
           expect(valid).to.be.true;
         });
       });
-    }); // signing to recipient with HS256
+    }); // signing to recipient using HS256
     
     describe('signing to recipient with HS512', function() {
       var token;
@@ -445,6 +444,6 @@ describe('jwt/seal', function() {
       });
     }); // encrypting to recipient using RSA-OAEP
     
-  }); // using defaults
+  }); // defaults
   
 }); // jwt/seal

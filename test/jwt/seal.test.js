@@ -119,7 +119,7 @@ describe('jwt/seal', function() {
       });
     }); // signing to recipient using HS256
     
-    describe('signing to recipient with HS512', function() {
+    describe('signing to recipient with HS512', function() { // SHA-512 HMAC
       var token;
       
       var keying = sinon.stub().yields(null, { secret: '12abcdef7890abcdef7890abcdef789012abcdef7890abcdef7890abcdef7890', algorithm: 'hmac-sha512' });
@@ -176,7 +176,7 @@ describe('jwt/seal', function() {
       });
     }); // signing to recipient with HS512
     
-    describe('signing to recipient with RS256', function() {
+    describe('signing to recipient with RS256', function() { // RSA-256
       var token;
       
       var keying = sinon.stub().yields(null, {

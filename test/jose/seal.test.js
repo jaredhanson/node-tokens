@@ -179,6 +179,92 @@ describe('jose/seal', function() {
       });
     }); // signing to recipient using HS256
     
+    describe.skip('signing to recipient using HS512', function() { // SHA-512 HMAC
+      var object;
+      
+      var keying = sinon.stub().yields(null, { secret: '12abcdef7890abcdef7890abcdef789012abcdef7890abcdef7890abcdef7890', algorithm: 'hmac-sha512' });
+      
+      before(function(done) {
+        var recipients = [ {
+          location: 'https://api.example.com/'
+        } ];
+        
+        var seal = setup(keying);
+        seal({ beep: 'boop' }, { recipients: recipients, confidential: false }, function(err, o) {
+          object = o;
+          done(err);
+        });
+      });
+      
+      it('should query for key', function() {
+        expect(keying.callCount).to.equal(1);
+        var call = keying.getCall(0);
+        expect(call.args[0]).to.deep.equal({
+          location: 'https://api.example.com/'
+        });
+        expect(call.args[1]).to.deep.equal({
+          usage: 'sign',
+          algorithms: [ 'hmac-sha256', 'rsa-sha256' ]
+        });
+      });
+      
+      it('should generate an object', function() {
+        expect(object).to.be.an('object');
+        
+        expect(Object.keys(object)).to.have.length(3);
+        expect(object.protected).to.be.a('string');
+        expect(object.payload).to.be.a('string');
+        expect(object.signature).to.be.an('string');
+        
+        var st = jose.parse(object);
+        
+        expect(st.all).to.have.length(1);
+        expect(st.all[0]).to.be.an('object');
+        expect(Object.keys(st.all[0])).to.have.length(3);
+        expect(st.all[0].typ).to.equal('JOSE+JSON');
+        expect(st.all[0].alg).to.equal('HS512');
+        expect(st.all[0].cty).to.equal('json');
+      });
+      
+      describe('verifying token', function() {
+        var header, protected, claims;
+        before(function(done) {
+          var jwk = {
+            kty: 'oct',
+            k: jose.util.base64url.encode('12abcdef7890abcdef7890abcdef789012abcdef7890abcdef7890abcdef7890')
+          };
+          
+          var keystore = jose.JWK.createKeyStore();
+          keystore.add(jwk)
+            .then(function() {
+              return jose.JWS.createVerify(keystore).verify(object);
+            })
+            .then(function(result) {
+              header = result.header;
+              protected = result.protected;
+              claims = JSON.parse(result.payload.toString());
+              done();
+            });
+        });
+        
+        it('should have correct header', function() {
+          expect(header).to.be.an('object');
+          expect(Object.keys(header)).to.have.length(3);
+          expect(header.typ).to.equal('JOSE+JSON');
+          expect(header.alg).to.equal('HS256');
+          expect(header.cty).to.equal('json');
+          
+          expect(protected).to.deep.equal(['typ', 'cty', 'alg']);
+        });
+        
+        it('should have correct claims', function() {
+          expect(claims).to.be.an('object');
+          expect(Object.keys(claims)).to.have.length(1);
+          expect(claims.beep).to.equal('boop');
+        });
+      });
+    }); // signing to recipient using HS512
+    
     describe('signing to two recipient using HS256', function() { // SHA-256 HMAC
       var object;
       

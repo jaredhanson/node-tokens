@@ -37,19 +37,18 @@ describe('jwt/seal', function() {
       });
       
       it('should generate a token', function() {
-        expect(token.length).to.equal(101);
-        expect(token.substr(0, 2)).to.equal('ey');
+        expect(token).to.be.a('string');
         
-        var tkn = jws.decode(token);
+        var st = jws.decode(token);
         
-        expect(tkn.header).to.be.an('object');
-        expect(Object.keys(tkn.header)).to.have.length(2);
-        expect(tkn.header.typ).to.equal('JWT');
-        expect(tkn.header.alg).to.equal('HS256');
+        expect(st.header).to.be.an('object');
+        expect(Object.keys(st.header)).to.have.length(2);
+        expect(st.header.typ).to.equal('JWT');
+        expect(st.header.alg).to.equal('HS256');
         
-        expect(tkn.payload).to.be.an('object');
-        expect(Object.keys(tkn.payload)).to.have.length(1);
-        expect(tkn.payload.beep).to.equal('boop');
+        expect(st.payload).to.be.an('object');
+        expect(Object.keys(st.payload)).to.have.length(1);
+        expect(st.payload.beep).to.equal('boop');
       });
       
       describe('verifying token', function() {

@@ -511,7 +511,7 @@ describe('jose/seal', function() {
       });
     }); // signing to recipient with RS256
     
-    describe.only('encrypting to self', function() { // RSA-256
+    describe('encrypting to self', function() { // RSA-256
       var object;
       
       var keying = sinon.stub().yields(null, { secret: '12abcdef7890abcdef7890abcdef7890' });

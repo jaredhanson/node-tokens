@@ -44,14 +44,14 @@ describe('jose/seal', function() {
         expect(object.payload).to.be.a('string');
         expect(object.signature).to.be.an('string');
         
-        var st = jose.parse(object);
+        var so = jose.parse(object);
         
-        expect(st.all).to.have.length(1);
-        expect(st.all[0]).to.be.an('object');
-        expect(Object.keys(st.all[0])).to.have.length(3);
-        expect(st.all[0].typ).to.equal('JOSE+JSON');
-        expect(st.all[0].alg).to.equal('HS256');
-        expect(st.all[0].cty).to.equal('json');
+        expect(so.all).to.have.length(1);
+        expect(so.all[0]).to.be.an('object');
+        expect(Object.keys(so.all[0])).to.have.length(3);
+        expect(so.all[0].typ).to.equal('JOSE+JSON');
+        expect(so.all[0].alg).to.equal('HS256');
+        expect(so.all[0].cty).to.equal('json');
       });
       
       describe('verifying token', function() {
@@ -130,14 +130,14 @@ describe('jose/seal', function() {
         expect(object.payload).to.be.a('string');
         expect(object.signature).to.be.an('string');
         
-        var st = jose.parse(object);
+        var so = jose.parse(object);
         
-        expect(st.all).to.have.length(1);
-        expect(st.all[0]).to.be.an('object');
-        expect(Object.keys(st.all[0])).to.have.length(3);
-        expect(st.all[0].typ).to.equal('JOSE+JSON');
-        expect(st.all[0].alg).to.equal('HS256');
-        expect(st.all[0].cty).to.equal('json');
+        expect(so.all).to.have.length(1);
+        expect(so.all[0]).to.be.an('object');
+        expect(Object.keys(so.all[0])).to.have.length(3);
+        expect(so.all[0].typ).to.equal('JOSE+JSON');
+        expect(so.all[0].alg).to.equal('HS256');
+        expect(so.all[0].cty).to.equal('json');
       });
       
       describe('verifying token', function() {
@@ -216,14 +216,14 @@ describe('jose/seal', function() {
         expect(object.payload).to.be.a('string');
         expect(object.signature).to.be.an('string');
         
-        var st = jose.parse(object);
+        var so = jose.parse(object);
         
-        expect(st.all).to.have.length(1);
-        expect(st.all[0]).to.be.an('object');
-        expect(Object.keys(st.all[0])).to.have.length(3);
-        expect(st.all[0].typ).to.equal('JOSE+JSON');
-        expect(st.all[0].alg).to.equal('HS512');
-        expect(st.all[0].cty).to.equal('json');
+        expect(so.all).to.have.length(1);
+        expect(so.all[0]).to.be.an('object');
+        expect(Object.keys(so.all[0])).to.have.length(3);
+        expect(so.all[0].typ).to.equal('JOSE+JSON');
+        expect(so.all[0].alg).to.equal('HS512');
+        expect(so.all[0].cty).to.equal('json');
       });
       
       describe('verifying token', function() {
@@ -327,19 +327,19 @@ describe('jose/seal', function() {
         expect(object.signatures[1].protected).to.be.a('string');
         expect(object.signatures[1].signature).to.be.a('string');
         
-        var st = jose.parse(object);
+        var so = jose.parse(object);
         
-        expect(st.all).to.have.length(2);
-        expect(st.all[0]).to.be.an('object');
-        expect(Object.keys(st.all[0])).to.have.length(3);
-        expect(st.all[0].typ).to.equal('JOSE+JSON');
-        expect(st.all[0].alg).to.equal('HS256');
-        expect(st.all[0].cty).to.equal('json');
-        expect(st.all[1]).to.be.an('object');
-        expect(Object.keys(st.all[1])).to.have.length(3);
-        expect(st.all[1].typ).to.equal('JOSE+JSON');
-        expect(st.all[1].alg).to.equal('HS256');
-        expect(st.all[1].cty).to.equal('json');
+        expect(so.all).to.have.length(2);
+        expect(so.all[0]).to.be.an('object');
+        expect(Object.keys(so.all[0])).to.have.length(3);
+        expect(so.all[0].typ).to.equal('JOSE+JSON');
+        expect(so.all[0].alg).to.equal('HS256');
+        expect(so.all[0].cty).to.equal('json');
+        expect(so.all[1]).to.be.an('object');
+        expect(Object.keys(so.all[1])).to.have.length(3);
+        expect(so.all[1].typ).to.equal('JOSE+JSON');
+        expect(so.all[1].alg).to.equal('HS256');
+        expect(so.all[1].cty).to.equal('json');
       });
       
       describe('verifying token by first recipient', function() {
@@ -460,15 +460,15 @@ describe('jose/seal', function() {
         expect(object.payload).to.be.a('string');
         expect(object.signature).to.be.an('string');
         
-        var st = jose.parse(object);
+        var so = jose.parse(object);
         
-        expect(st.all).to.have.length(1);
-        expect(st.all[0]).to.be.an('object');
-        expect(Object.keys(st.all[0])).to.have.length(4);
-        expect(st.all[0].typ).to.equal('JOSE+JSON');
-        expect(st.all[0].alg).to.equal('RS256');
-        expect(st.all[0].kid).to.equal('1');
-        expect(st.all[0].cty).to.equal('json');
+        expect(so.all).to.have.length(1);
+        expect(so.all[0]).to.be.an('object');
+        expect(Object.keys(so.all[0])).to.have.length(4);
+        expect(so.all[0].typ).to.equal('JOSE+JSON');
+        expect(so.all[0].alg).to.equal('RS256');
+        expect(so.all[0].kid).to.equal('1');
+        expect(so.all[0].cty).to.equal('json');
       });
       
       describe('verifying token', function() {
@@ -509,7 +509,176 @@ describe('jose/seal', function() {
           expect(claims.beep).to.equal('boop');
         });
       });
-    });
+    }); // signing to recipient with RS256
+    
+    describe.only('encrypting to self', function() { // RSA-256
+      var object;
+      
+      var keying = sinon.stub().yields(null, { secret: '12abcdef7890abcdef7890abcdef7890' });
+      
+      before(function(done) {
+        var seal = setup(keying);
+        seal({ beep: 'boop' }, function(err, o) {
+          object = o;
+          done(err);
+        });
+      });
+      
+      it('should query for key', function() {
+        expect(keying.callCount).to.equal(1);
+        var call = keying.getCall(0);
+        expect(call.args[0]).to.be.undefined;
+        expect(call.args[1]).to.deep.equal({
+          usage: 'encrypt',
+          algorithms: [ 'aes128-cbc-hmac-sha256' ]
+        });
+      });
+      
+      it('should generate an object', function() {
+        expect(object).to.be.an('object');
+        
+        expect(Object.keys(object)).to.have.length(6);
+        expect(object.protected).to.be.a('string');
+        expect(object.header).to.be.a('object');
+        expect(object.header).to.deep.equal({ alg: 'A256KW' });
+        expect(object.encrypted_key).to.be.a('string');
+        expect(object.iv).to.be.a('string');
+        expect(object.ciphertext).to.be.a('string');
+        expect(object.tag).to.be.a('string');
+        
+        var so = jose.parse(object);
+        
+        expect(so.all).to.have.length(1);
+        expect(so.all[0]).to.be.an('object');
+        expect(Object.keys(so.all[0])).to.have.length(3);
+        expect(so.all[0].typ).to.equal('JOSE+JSON');
+        // FIXME: no alg?
+        //expect(tkn.all[0].alg).to.equal('A256KW');
+        expect(so.all[0].enc).to.equal('A128CBC-HS256');
+        expect(so.all[0].cty).to.equal('json');
+      });
+      
+      describe.skip('decrypting token', function() {
+        var header, protected, claims;
+        before(function(done) {
+          var jwk = {
+            kty: 'oct',
+            k: jose.util.base64url.encode('12abcdef7890abcdef7890abcdef7890')
+          };
+          console.log(jwk)
+          
+          var keystore = jose.JWK.createKeyStore();
+          keystore.add(jwk).
+          then(function() {
+              return jose.JWE.createDecrypt(keystore).decrypt(object);
+            }).
+            then(function(result) {
+              console.log(result)
+              
+              claims = JSON.parse(result.payload.toString());
+              done();
+            });
+        });
+        
+        it('should have correct header', function() {
+          expect(header).to.be.an('object');
+          expect(Object.keys(header)).to.have.length(4);
+          expect(header.typ).to.equal('JOSE+JSON');
+          expect(header.alg).to.equal('RS256');
+          expect(header.kid).to.equal('1');
+          expect(header.cty).to.equal('json');
+          
+          expect(protected).to.deep.equal(['typ', 'cty', 'alg', 'kid']);
+        });
+        
+        it('should have correct claims', function() {
+          expect(claims).to.be.an('object');
+          expect(Object.keys(claims)).to.have.length(1);
+          expect(claims.beep).to.equal('boop');
+        });
+      });
+    }); // encrypting to self
+    
+    /*
+    describe('encrypting to self', function() {
+      var token;
+      before(function(done) {
+        var audience = [ {
+          id: 'https://www.example.com'
+        } ];
+        
+        seal({ foo: 'bar' }, function(err, t) {
+          token = t;
+          done(err);
+        });
+      });
+      
+      after(function() {
+        keying.reset();
+      });
+      
+      it('should query for key', function() {
+        expect(keying.callCount).to.equal(1);
+        var call = keying.getCall(0);
+        expect(call.args[0]).to.deep.equal({
+          recipient: undefined,
+          usage: 'encrypt',
+          algorithms: [ 'aes128-cbc-hmac-sha256' ]
+        });
+      });
+      
+      it('should generate a token with JSON Serialization', function() {
+        expect(token).to.be.an('object');
+        expect(Object.keys(token)).to.have.length(6);
+        expect(token.protected).to.be.a('string');
+        expect(token.header).to.be.a('object');
+        expect(token.header).to.deep.equal({ alg: 'A256KW', kid: '1' });
+        expect(token.encrypted_key).to.be.a('string');
+        expect(token.iv).to.be.a('string');
+        expect(token.ciphertext).to.be.a('string');
+        expect(token.tag).to.be.a('string');
+        
+        var tkn = jose.parse(token);
+        
+        // FIXME: in node-jose, the header needs to get merged in flattened syntax
+        //expect(tkn.all[0]).to.be.an('object');
+        //expect(Object.keys(tkn.all[0])).to.have.length(5);
+        //expect(tkn.all[0].typ).to.equal('JOSE+JSON');
+        //expect(tkn.all[0].alg).to.equal('A256KW');
+        //expect(tkn.all[0].enc).to.equal('A128CBC-HS256');
+        //expect(tkn.all[0].kid).to.equal('1');
+        //expect(tkn.all[0].cty).to.equal('json');
+      });
+    */
+      
+      /*
+      describe('verifying token', function() {
+        var claims;
+        before(function(done) {
+          var jwk = {
+            kty: 'oct',
+            kid: '1',
+            k: jose.util.base64url.encode('12abcdef7890abcdef7890abcdef7890')
+          };
+          
+          var keystore = jose.JWK.createKeyStore();
+          keystore.add(jwk).
+            then(function() {
+              return jose.JWE.createDecrypt(keystore).decrypt(token);
+            }).
+            then(function(result) {
+              claims = JSON.parse(result.payload.toString());
+              done();
+            });
+        });
+        
+        it('should be valid', function() {
+          expect(claims).to.be.an('object');
+          expect(claims.foo).to.equal('bar');
+        });
+      });
+      */
+      //}); // encrypting arbitrary claims
     
   }); // defaults
   
@@ -563,85 +732,6 @@ describe('jose/seal', function() {
       
       seal = setup(keying);
     });
-    
-    describe('encrypting to self', function() {
-      var token;
-      before(function(done) {
-        var audience = [ {
-          id: 'https://www.example.com'
-        } ];
-        
-        seal({ foo: 'bar' }, function(err, t) {
-          token = t;
-          done(err);
-        });
-      });
-      
-      after(function() {
-        keying.reset();
-      });
-      
-      it('should query for key', function() {
-        expect(keying.callCount).to.equal(1);
-        var call = keying.getCall(0);
-        expect(call.args[0]).to.deep.equal({
-          recipient: undefined,
-          usage: 'encrypt',
-          algorithms: [ 'aes128-cbc-hmac-sha256' ]
-        });
-      });
-      
-      it('should generate a token with JSON Serialization', function() {
-        expect(token).to.be.an('object');
-        expect(Object.keys(token)).to.have.length(6);
-        expect(token.protected).to.be.a('string');
-        expect(token.header).to.be.a('object');
-        expect(token.header).to.deep.equal({ alg: 'A256KW', kid: '1' });
-        expect(token.encrypted_key).to.be.a('string');
-        expect(token.iv).to.be.a('string');
-        expect(token.ciphertext).to.be.a('string');
-        expect(token.tag).to.be.a('string');
-        
-        var tkn = jose.parse(token);
-        
-        // FIXME: in node-jose, the header needs to get merged in flattened syntax
-        //expect(tkn.all[0]).to.be.an('object');
-        //expect(Object.keys(tkn.all[0])).to.have.length(5);
-        //expect(tkn.all[0].typ).to.equal('JOSE+JSON');
-        //expect(tkn.all[0].alg).to.equal('A256KW');
-        //expect(tkn.all[0].enc).to.equal('A128CBC-HS256');
-        //expect(tkn.all[0].kid).to.equal('1');
-        //expect(tkn.all[0].cty).to.equal('json');
-      });
-      
-      /*
-      describe('verifying token', function() {
-        var claims;
-        before(function(done) {
-          var jwk = {
-            kty: 'oct',
-            kid: '1',
-            k: jose.util.base64url.encode('12abcdef7890abcdef7890abcdef7890')
-          };
-          
-          var keystore = jose.JWK.createKeyStore();
-          keystore.add(jwk).
-            then(function() {
-              return jose.JWE.createDecrypt(keystore).decrypt(token);
-            }).
-            then(function(result) {
-              claims = JSON.parse(result.payload.toString());
-              done();
-            });
-        });
-        
-        it('should be valid', function() {
-          expect(claims).to.be.an('object');
-          expect(claims.foo).to.equal('bar');
-        });
-      });
-      */
-    }); // encrypting arbitrary claims
     
     /*
     describe('encrypting arbitrary claims to audience using AES-128 in CBC mode with HMAC SHA-256', function() {

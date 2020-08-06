@@ -243,7 +243,7 @@ describe('jwt/seal', function() {
       
       before(function(done) {
         var seal = setup(keying);
-        seal({ beep: 'boop' },  function(err, t) {
+        seal({ beep: 'boop' }, function(err, t) {
           token = t;
           done(err);
         });
@@ -260,19 +260,18 @@ describe('jwt/seal', function() {
       });
       
       it('should generate a token', function() {
-        expect(token.length).to.equal(191);
-        expect(token.substr(0, 2)).to.equal('ey');
+        expect(token).to.be.a('string');
         
-        var tkn = jose.parse(token);
+        var st = jose.parse(token);
         
-        expect(tkn.header).to.be.an('object');
-        expect(Object.keys(tkn.header)).to.have.length(3);
-        expect(tkn.header.typ).to.equal('JWT');
-        expect(tkn.header.alg).to.equal('A256KW');
-        expect(tkn.header.enc).to.equal('A128CBC-HS256');
+        expect(st.header).to.be.an('object');
+        expect(Object.keys(st.header)).to.have.length(3);
+        expect(st.header.typ).to.equal('JWT');
+        expect(st.header.alg).to.equal('A256KW');
+        expect(st.header.enc).to.equal('A128CBC-HS256');
       });
       
-      describe('verifying token', function() {
+      describe('decrypting token', function() {
         var claims;
         before(function(done) {
           var jwk = {
@@ -341,7 +340,7 @@ describe('jwt/seal', function() {
         expect(tkn.header.enc).to.equal('A128CBC-HS256');
       });
       
-      describe('verifying token', function() {
+      describe('decrypting token', function() {
         var claims;
         before(function(done) {
           var jwk = {
@@ -415,7 +414,7 @@ describe('jwt/seal', function() {
         expect(tkn.header.kid).to.equal('1');
       });
       
-      describe('verifying token', function() {
+      describe('decrypting token', function() {
         var claims;
         before(function(done) {
           var keystore = jose.JWK.createKeyStore();

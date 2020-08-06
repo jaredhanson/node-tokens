@@ -419,6 +419,98 @@ describe('jose/seal', function() {
       });
     }); // signing to two recipients using HS256
     
+    describe('signing to recipient with RS256', function() { // RSA-256
+      var object;
+      
+      var keying = sinon.stub().yields(null, {
+        id: '1',
+        key: fs.readFileSync(__dirname + '/../keys/rsa/private-key.pem'),
+        algorithm: 'rsa-sha256'
+      });
+      
+      before(function(done) {
+        var recipients = [ {
+          location: 'https://api.example.com/'
+        } ];
+        
+        var seal = setup(keying);
+        seal({ beep: 'boop' }, { recipients: recipients, confidential: false }, function(err, o) {
+          object = o;
+          done(err);
+        });
+      });
+      
+      it('should query for key', function() {
+        expect(keying.callCount).to.equal(1);
+        var call = keying.getCall(0);
+        expect(call.args[0]).to.deep.equal({
+          location: 'https://api.example.com/'
+        });
+        expect(call.args[1]).to.deep.equal({
+          usage: 'sign',
+          algorithms: [ 'hmac-sha256', 'rsa-sha256' ]
+        });
+      });
+      
+      it('should generate an object', function() {
+        expect(object).to.be.an('object');
+        
+        expect(Object.keys(object)).to.have.length(3);
+        expect(object.protected).to.be.a('string');
+        expect(object.payload).to.be.a('string');
+        expect(object.signature).to.be.an('string');
+        
+        var st = jose.parse(object);
+        
+        expect(st.all).to.have.length(1);
+        expect(st.all[0]).to.be.an('object');
+        expect(Object.keys(st.all[0])).to.have.length(4);
+        expect(st.all[0].typ).to.equal('JOSE+JSON');
+        expect(st.all[0].alg).to.equal('RS256');
+        expect(st.all[0].kid).to.equal('1');
+        expect(st.all[0].cty).to.equal('json');
+      });
+      
+      describe('verifying token', function() {
+        var header, protected, claims;
+        before(function(done) {
+          var keystore = jose.JWK.createKeyStore();
+          return jose.JWK.asKey(fs.readFileSync(__dirname + '/../keys/rsa/private-key.pem'), 'pem')
+            .then(function(k) {
+              var jwk = k.toJSON(true);
+              jwk.kid = '1';
+              return keystore.add(jwk);
+            })
+            .then(function() {
+              return jose.JWS.createVerify(keystore).verify(object);
+            })
+            .then(function(result) {
+              header = result.header;
+              protected = result.protected;
+              claims = JSON.parse(result.payload.toString());
+              done();
+            });
+        });
+        
+        it('should have correct header', function() {
+          expect(header).to.be.an('object');
+          expect(Object.keys(header)).to.have.length(4);
+          expect(header.typ).to.equal('JOSE+JSON');
+          expect(header.alg).to.equal('RS256');
+          expect(header.kid).to.equal('1');
+          expect(header.cty).to.equal('json');
+          
+          expect(protected).to.deep.equal(['typ', 'cty', 'alg', 'kid']);
+        });
+        
+        it('should have correct claims', function() {
+          expect(claims).to.be.an('object');
+          expect(Object.keys(claims)).to.have.length(1);
+          expect(claims.beep).to.equal('boop');
+        });
+      });
+    });
+    
   }); // defaults
   
   describe.skip('using defaults', function() {
@@ -814,66 +906,6 @@ describe('jose/seal', function() {
         });
       });
     }); // encrypting arbitrary claims to audience using RSA-OAEP
-    */
-    
-    /*
-    describe('signing arbitrary claims to audience using RSA-256', function() {
-      var token;
-      before(function(done) {
-        var audience = [ {
-          id: 'https://api.example.com/asym/256'
-        } ];
-        
-        seal({ foo: 'bar' }, { audience: audience, confidential: false }, function(err, t) {
-          token = t;
-          done(err);
-        });
-      });
-      
-      after(function() {
-        keying.reset();
-      });
-      
-      it('should query for key', function() {
-        expect(keying.callCount).to.equal(1);
-        var call = keying.getCall(0);
-        expect(call.args[0]).to.deep.equal({
-          recipients: [ {
-            id: 'https://api.example.com/asym/256'
-          } ],
-          usage: 'sign',
-          algorithms: [ 'hmac-sha256', 'rsa-sha256' ]
-        });
-      });
-      
-      it('should generate a token', function() {
-        expect(token.length).to.equal(242);
-        expect(token.substr(0, 2)).to.equal('ey');
-        
-        var tkn = jws.decode(token);
-        
-        expect(tkn.header).to.be.an('object');
-        expect(Object.keys(tkn.header)).to.have.length(3);
-        expect(tkn.header.typ).to.equal('JWT');
-        expect(tkn.header.alg).to.equal('RS256');
-        expect(tkn.header.kid).to.equal('13');
-        
-        expect(tkn.payload).to.be.an('object');
-        expect(Object.keys(tkn.payload)).to.have.length(1);
-        expect(tkn.payload.foo).to.equal('bar');
-      });
-      
-      describe('verifying token', function() {
-        var valid;
-        before(function() {
-          valid = jws.verify(token, 'RS256', fs.readFileSync(__dirname + '/../keys/rsa/cert.pem'));
-        });
-        
-        it('should be valid', function() {
-          expect(valid).to.be.true;
-        });
-      });
-    }); // signing arbitrary claims to audience using RSA-256
     */
     
   }); // using defaults

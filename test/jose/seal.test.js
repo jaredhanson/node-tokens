@@ -595,6 +595,96 @@ describe('jose/seal', function() {
       });
     }); // encrypting to self
     
+    describe('encrypting to recipient using AES-128 in CBC mode with SHA-256 HMAC', function() {
+      var object;
+      
+      var keying = sinon.stub().yields(null, { secret: 'API-12abcdef7890abcdef7890abcdef', algorithm: 'aes128-cbc-hmac-sha256' });
+      
+      before(function(done) {
+        var recipients = [ {
+          location: 'https://api.example.com/'
+        } ];
+        
+        var seal = setup(keying);
+        seal({ beep: 'boop' }, recipients, function(err, o) {
+          object = o;
+          done(err);
+        });
+      });
+      
+      it('should query for key', function() {
+        expect(keying.callCount).to.equal(1);
+        var call = keying.getCall(0);
+        expect(call.args[0]).to.deep.equal({
+          location: 'https://api.example.com/'
+        });
+        expect(call.args[1]).to.deep.equal({
+          usage: 'encrypt',
+          algorithms: [ 'aes128-cbc-hmac-sha256' ]
+        });
+      });
+      
+      it('should generate an object', function() {
+        expect(object).to.be.an('object');
+        
+        expect(Object.keys(object)).to.have.length(5);
+        expect(object.protected).to.be.a('string');
+        expect(object.encrypted_key).to.be.a('string');
+        expect(object.iv).to.be.a('string');
+        expect(object.ciphertext).to.be.a('string');
+        expect(object.tag).to.be.a('string');
+        
+        var so = jose.parse(object);
+        
+        expect(so.all).to.have.length(1);
+        expect(so.all[0]).to.be.an('object');
+        expect(Object.keys(so.all[0])).to.have.length(4);
+        expect(so.all[0].typ).to.equal('JOSE+JSON');
+        expect(so.all[0].alg).to.equal('A256KW');
+        expect(so.all[0].enc).to.equal('A128CBC-HS256');
+        expect(so.all[0].cty).to.equal('json');
+      });
+      
+      describe('decrypting object', function() {
+        var header, protected, claims;
+        before(function(done) {
+          var jwk = {
+            kty: 'oct',
+            k: jose.util.base64url.encode('API-12abcdef7890abcdef7890abcdef')
+          };
+          
+          var keystore = jose.JWK.createKeyStore();
+          keystore.add(jwk)
+            .then(function() {
+              return jose.JWE.createDecrypt(keystore).decrypt(object);
+            })
+            .then(function(result) {
+              header = result.header;
+              protected = result.protected;
+              claims = JSON.parse(result.payload.toString());
+              done();
+            });
+        });
+        
+        it('should have correct header', function() {
+          expect(header).to.be.an('object');
+          expect(Object.keys(header)).to.have.length(4);
+          expect(header.typ).to.equal('JOSE+JSON');
+          expect(header.alg).to.equal('A256KW');
+          expect(header.enc).to.equal('A128CBC-HS256');
+          expect(header.cty).to.equal('json');
+          
+          expect(protected).to.deep.equal(['typ', 'cty', 'enc', 'alg']);
+        });
+        
+        it('should have correct claims', function() {
+          expect(claims).to.be.an('object');
+          expect(Object.keys(claims)).to.have.length(1);
+          expect(claims.beep).to.equal('boop');
+        });
+      });
+    }); // encrypting to recipient using AES-128 in CBC mode with SHA-256 HMAC
+    
   }); // defaults
   
   describe.skip('using defaults', function() {

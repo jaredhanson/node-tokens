@@ -280,11 +280,11 @@ describe('jwt/seal', function() {
           };
           
           var keystore = jose.JWK.createKeyStore();
-          keystore.add(jwk).
-            then(function() {
+          keystore.add(jwk)
+            .then(function() {
               return jose.JWE.createDecrypt(keystore).decrypt(token);
-            }).
-            then(function(result) {
+            })
+            .then(function(result) {
               claims = JSON.parse(result.payload.toString());
               done();
             });
@@ -349,11 +349,11 @@ describe('jwt/seal', function() {
           };
           
           var keystore = jose.JWK.createKeyStore();
-          keystore.add(jwk).
-            then(function() {
+          keystore.add(jwk)
+            .then(function() {
               return jose.JWE.createDecrypt(keystore).decrypt(token);
-            }).
-            then(function(result) {
+            })
+            .then(function(result) {
               claims = JSON.parse(result.payload.toString());
               done();
             });

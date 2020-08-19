@@ -372,6 +372,7 @@ describe('jwt/seal', function() {
       
       var keying = sinon.stub().yields(null, {
         id: '1',
+        // FIXME: This is a public key, use different param
         key: fs.readFileSync(__dirname + '/../keys/rsa/cert.pem'),
         algorithm: 'rsa-sha256'
       });

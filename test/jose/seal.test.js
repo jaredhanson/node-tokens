@@ -690,6 +690,7 @@ describe('jose/seal', function() {
       
       var keying = sinon.stub().yields(null, {
         id: '1',
+        // FIXME: This is a public key, use different param
         key: fs.readFileSync(__dirname + '/../keys/rsa/cert.pem'),
         algorithm: 'rsa-sha256'
       });
@@ -955,77 +956,6 @@ describe('jose/seal', function() {
       });
       */
     }); // encrypting to two recipients, both using AES-128 in CBC mode with SHA-256 HMAC
-    
-    /*
-    describe('encrypting arbitrary claims to audience using RSA-OAEP', function() {
-      var token;
-      before(function(done) {
-        var audience = [ {
-          id: 'https://api.example.com/asym/256',
-        } ];
-        
-        seal({ foo: 'bar' }, { audience: audience }, function(err, t) {
-          token = t;
-          done(err);
-        });
-      });
-      
-      after(function() {
-        keying.reset();
-      });
-      
-      it('should query for key', function() {
-        expect(keying.callCount).to.equal(1);
-        var call = keying.getCall(0);
-        expect(call.args[0]).to.deep.equal({
-          recipients: [ {
-            id: 'https://api.example.com/asym/256',
-          } ],
-          usage: 'encrypt',
-          algorithms: [ 'aes128-cbc-hmac-sha256' ]
-        });
-      });
-      
-      it('should generate a token', function() {
-        expect(token.length).to.equal(325);
-        expect(token.substr(0, 2)).to.equal('ey');
-        
-        var tkn = jose.parse(token);
-        
-        expect(tkn.header).to.be.an('object');
-        expect(Object.keys(tkn.header)).to.have.length(4);
-        expect(tkn.header.typ).to.equal('JWT');
-        expect(tkn.header.alg).to.equal('RSA-OAEP');
-        expect(tkn.header.enc).to.equal('A128CBC-HS256');
-        expect(tkn.header.kid).to.equal('13');
-      });
-      
-      describe('verifying token', function() {
-        var claims;
-        before(function(done) {
-          var keystore = jose.JWK.createKeyStore();
-          return jose.JWK.asKey(fs.readFileSync(__dirname + '/../keys/rsa/private-key.pem'), 'pem')
-            .then(function(k) {
-              var jwk = k.toJSON(true);
-              jwk.kid = '13';
-              return keystore.add(jwk);
-            })
-            .then(function() {
-              return jose.JWE.createDecrypt(keystore).decrypt(token);
-            })
-            .then(function(result) {
-              claims = JSON.parse(result.payload.toString());
-              done();
-            });
-        });
-        
-        it('should be valid', function() {
-          expect(claims).to.be.an('object');
-          expect(claims.foo).to.equal('bar');
-        });
-      });
-    }); // encrypting arbitrary claims to audience using RSA-OAEP
-    */
     
   }); // using defaults
   

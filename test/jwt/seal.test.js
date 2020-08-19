@@ -382,7 +382,7 @@ describe('jwt/seal', function() {
         } ];
         
         var seal = setup(keying);
-        seal({ foo: 'bar' }, recipients, function(err, t) {
+        seal({ beep: 'boop' }, recipients, function(err, t) {
           token = t;
           done(err);
         });
@@ -436,7 +436,7 @@ describe('jwt/seal', function() {
         it('should be valid', function() {
           expect(claims).to.be.an('object');
           expect(Object.keys(claims)).to.have.length(1);
-          expect(claims.foo).to.equal('bar');
+          expect(claims.beep).to.equal('boop');
         });
       });
     }); // encrypting to recipient using RSA-OAEP

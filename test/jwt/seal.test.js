@@ -112,20 +112,21 @@ describe('jwt/seal', function() {
     describe('signing to recipient with HS512', function() { // SHA-512 HMAC
       var token;
       
-      var keying = sinon.stub().yields(null, { secret: '12abcdef7890abcdef7890abcdef789012abcdef7890abcdef7890abcdef7890', algorithm: 'hmac-sha512' });
+      //var keying = sinon.stub().yields(null, { secret: '12abcdef7890abcdef7890abcdef789012abcdef7890abcdef7890abcdef7890', algorithm: 'hmac-sha512' });
       
       before(function(done) {
         var recipients = [ {
           location: 'https://api.example.com/'
         } ];
         
-        var seal = setup(keying);
-        seal({ beep: 'boop' }, { recipients: recipients, confidential: false }, function(err, t) {
+        var seal = setup();
+        seal({ beep: 'boop' }, { secret: '12abcdef7890abcdef7890abcdef789012abcdef7890abcdef7890abcdef7890', algorithm: 'hmac-sha512', confidential: false }, function(err, t) {
           token = t;
           done(err);
         });
       });
       
+      /*
       it('should query for key', function() {
         expect(keying.callCount).to.equal(1);
         var call = keying.getCall(0);
@@ -137,6 +138,7 @@ describe('jwt/seal', function() {
           algorithms: [ 'hmac-sha256', 'rsa-sha256' ]
         });
       });
+      */
       
       it('should generate a token', function() {
         expect(token).to.be.a('string');

@@ -304,20 +304,21 @@ describe('jwt/seal', function() {
     describe('encrypting to recipient using AES-128 in CBC mode with SHA-256 HMAC', function() {
       var token;
       
-      var keying = sinon.stub().yields(null, { secret: 'API-12abcdef7890abcdef7890abcdef', algorithm: 'aes128-cbc-hmac-sha256' });
+      //var keying = sinon.stub().yields(null, { secret: 'API-12abcdef7890abcdef7890abcdef', algorithm: 'aes128-cbc-hmac-sha256' });
       
       before(function(done) {
         var recipients = [ {
           location: 'https://api.example.com/'
         } ];
         
-        var seal = setup(keying);
-        seal({ beep: 'boop' }, recipients, function(err, t) {
+        var seal = setup();
+        seal({ beep: 'boop' }, { secret: 'API-12abcdef7890abcdef7890abcdef', algorithm: 'aes128-cbc-hmac-sha256' }, function(err, t) {
           token = t;
           done(err);
         });
       });
       
+      /*
       it('should query for key', function() {
         expect(keying.callCount).to.equal(1);
         var call = keying.getCall(0);
@@ -329,6 +330,7 @@ describe('jwt/seal', function() {
           algorithms: [ 'aes128-cbc-hmac-sha256' ]
         });
       });
+      */
       
       it('should generate a token', function() {
         expect(token.length).to.equal(191);

@@ -767,7 +767,7 @@ describe('Tokens', function() {
         dialects.use('application/jwt', access);
     
         var jwt = {
-          seal: function(claims, header, key, cb) {
+          seal: function(claims, key, cb) {
             process.nextTick(function() {
               return cb(null, 'eyJ0.eyJpc3Mi.dBjf');
             });
@@ -805,12 +805,10 @@ describe('Tokens', function() {
           expect(jwt.seal.callCount).to.equal(1);
           var call = jwt.seal.getCall(0);
           expect(call.args[0]).to.deep.equal({
+            aud: 's6BhdRkqt3',
             bep: 'boop'
           });
           expect(call.args[1]).to.deep.equal({
-            aud: 's6BhdRkqt3'
-          });
-          expect(call.args[2]).to.deep.equal({
             secret: 'keyboardcat'
           });
         });

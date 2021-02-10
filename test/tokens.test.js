@@ -364,12 +364,14 @@ describe('Tokens', function() {
         keyring.get = sinon.stub().yields(null, { secret: 'keyboardcat' });
     
         var access = {
-          encode: function(claims) {
+          encode: function(msg) {
             return {
-              bep: claims.beep
+              bep: msg.beep
             };
           }
         };
+        
+        access.encode = sinon.spy(access.encode);
         
         var dialects = new Dialects();
         dialects.use('application/jwt', access);
@@ -395,6 +397,14 @@ describe('Tokens', function() {
           tokens.issue({ beep: 'boop' }, function(err, t) {
             token = t;
             done(err);
+          });
+        });
+        
+        it('should encode message', function() {
+          expect(access.encode.callCount).to.equal(1);
+          var call = access.encode.getCall(0);
+          expect(call.args[0]).to.deep.equal({
+            beep: 'boop'
           });
         });
       
@@ -428,14 +438,14 @@ describe('Tokens', function() {
         keyring.get = sinon.stub().yields(null, { secret: 'keyboardcat' });
     
         var access = {
-          encode: function(claims, cb) {
-            process.nextTick(function() {
-              return cb(null, {
-                bep: claims.beep
-              });
-            });
+          encode: function(msg, options) {
+            return {
+              bep: msg.beep
+            };
           }
         };
+        
+        access.encode = sinon.spy(access.encode);
         
         var dialects = new Dialects();
         dialects.use('application/jwt', access);
@@ -463,6 +473,15 @@ describe('Tokens', function() {
             done(err);
           });
         });
+        
+        it('should encode message', function() {
+          expect(access.encode.callCount).to.equal(1);
+          var call = access.encode.getCall(0);
+          expect(call.args[0]).to.deep.equal({
+            beep: 'boop'
+          });
+          expect(call.args[1]).to.deep.equal({});
+        });
       
         it('should query for key', function() {
           expect(keyring.get.callCount).to.equal(1);
@@ -488,6 +507,243 @@ describe('Tokens', function() {
           expect(token).to.equal('eyJ0.eyJpc3Mi.dBjf');
         });
       }); // arity two
+      
+      describe('arity two with options', function() {
+        var keyring = new Object();
+        keyring.get = sinon.stub().yields(null, { secret: 'keyboardcat' });
+    
+        var access = {
+          encode: function(msg, options) {
+            return {
+              bep: msg.beep,
+              exp: 1544645174
+            };
+          }
+        };
+        
+        access.encode = sinon.spy(access.encode);
+        
+        var dialects = new Dialects();
+        dialects.use('application/jwt', access);
+    
+        var jwt = {
+          seal: function(claims, key, cb) {
+            process.nextTick(function() {
+              return cb(null, 'eyJ0.eyJpc3Mi.dBjf');
+            });
+          }
+        };
+      
+        jwt.seal = sinon.spy(jwt.seal);
+      
+    
+        var tokens = new Tokens(dialects)
+          , token;
+      
+        tokens.use('application/jwt', jwt);
+        tokens._keyring = keyring;
+      
+        before(function(done) {
+          tokens.issue({ beep: 'boop' }, { ttl: 60000 }, function(err, t) {
+            token = t;
+            done(err);
+          });
+        });
+        
+        it('should encode message', function() {
+          expect(access.encode.callCount).to.equal(1);
+          var call = access.encode.getCall(0);
+          expect(call.args[0]).to.deep.equal({
+            beep: 'boop'
+          });
+          expect(call.args[1]).to.deep.equal({
+            ttl: 60000
+          });
+        });
+      
+        it('should query for key', function() {
+          expect(keyring.get.callCount).to.equal(1);
+          var call = keyring.get.getCall(0);
+          expect(call.args[0]).to.be.undefined;
+          expect(call.args[1]).to.deep.equal({
+            usage: 'encrypt'
+          });
+        });
+      
+        it('should seal message', function() {
+          expect(jwt.seal.callCount).to.equal(1);
+          var call = jwt.seal.getCall(0);
+          expect(call.args[0]).to.deep.equal({
+            bep: 'boop',
+            exp: 1544645174
+          });
+          expect(call.args[1]).to.deep.equal({
+            secret: 'keyboardcat'
+          });
+        });
+      
+        it('should yield token', function() {
+          expect(token).to.equal('eyJ0.eyJpc3Mi.dBjf');
+        });
+      }); // arity two with options
+      
+      describe('arity three', function() {
+        var keyring = new Object();
+        keyring.get = sinon.stub().yields(null, { secret: 'keyboardcat' });
+    
+        var access = {
+          encode: function(msg, options, cb) {
+            process.nextTick(function() {
+              return cb(null, {
+                bep: msg.beep
+              });
+            });
+          }
+        };
+        
+        access.encode = sinon.spy(access.encode);
+        
+        var dialects = new Dialects();
+        dialects.use('application/jwt', access);
+    
+        var jwt = {
+          seal: function(claims, key, cb) {
+            process.nextTick(function() {
+              return cb(null, 'eyJ0.eyJpc3Mi.dBjf');
+            });
+          }
+        };
+      
+        jwt.seal = sinon.spy(jwt.seal);
+      
+    
+        var tokens = new Tokens(dialects)
+          , token;
+      
+        tokens.use('application/jwt', jwt);
+        tokens._keyring = keyring;
+      
+        before(function(done) {
+          tokens.issue({ beep: 'boop' }, function(err, t) {
+            token = t;
+            done(err);
+          });
+        });
+        
+        it('should encode message', function() {
+          expect(access.encode.callCount).to.equal(1);
+          var call = access.encode.getCall(0);
+          expect(call.args[0]).to.deep.equal({
+            beep: 'boop'
+          });
+          expect(call.args[1]).to.deep.equal({});
+        });
+      
+        it('should query for key', function() {
+          expect(keyring.get.callCount).to.equal(1);
+          var call = keyring.get.getCall(0);
+          expect(call.args[0]).to.be.undefined;
+          expect(call.args[1]).to.deep.equal({
+            usage: 'encrypt'
+          });
+        });
+      
+        it('should seal message', function() {
+          expect(jwt.seal.callCount).to.equal(1);
+          var call = jwt.seal.getCall(0);
+          expect(call.args[0]).to.deep.equal({
+            bep: 'boop'
+          });
+          expect(call.args[1]).to.deep.equal({
+            secret: 'keyboardcat'
+          });
+        });
+      
+        it('should yield token', function() {
+          expect(token).to.equal('eyJ0.eyJpc3Mi.dBjf');
+        });
+      }); // arity three
+      
+      describe('arity three with options', function() {
+        var keyring = new Object();
+        keyring.get = sinon.stub().yields(null, { secret: 'keyboardcat' });
+    
+        var access = {
+          encode: function(msg, options, cb) {
+            process.nextTick(function() {
+              return cb(null, {
+                bep: msg.beep,
+                exp: 1544645174
+              });
+            });
+          }
+        };
+        
+        access.encode = sinon.spy(access.encode);
+        
+        var dialects = new Dialects();
+        dialects.use('application/jwt', access);
+    
+        var jwt = {
+          seal: function(claims, key, cb) {
+            process.nextTick(function() {
+              return cb(null, 'eyJ0.eyJpc3Mi.dBjf');
+            });
+          }
+        };
+      
+        jwt.seal = sinon.spy(jwt.seal);
+      
+    
+        var tokens = new Tokens(dialects)
+          , token;
+      
+        tokens.use('application/jwt', jwt);
+        tokens._keyring = keyring;
+      
+        before(function(done) {
+          tokens.issue({ beep: 'boop' }, { ttl: 60000 }, function(err, t) {
+            token = t;
+            done(err);
+          });
+        });
+        
+        it('should encode message', function() {
+          expect(access.encode.callCount).to.equal(1);
+          var call = access.encode.getCall(0);
+          expect(call.args[0]).to.deep.equal({
+            beep: 'boop'
+          });
+          expect(call.args[1]).to.deep.equal({
+            ttl: 60000
+          });
+        });
+      
+        it('should query for key', function() {
+          expect(keyring.get.callCount).to.equal(1);
+          var call = keyring.get.getCall(0);
+          expect(call.args[0]).to.be.undefined;
+          expect(call.args[1]).to.deep.equal({
+            usage: 'encrypt'
+          });
+        });
+      
+        it('should seal message', function() {
+          expect(jwt.seal.callCount).to.equal(1);
+          var call = jwt.seal.getCall(0);
+          expect(call.args[0]).to.deep.equal({
+            bep: 'boop',
+            exp: 1544645174
+          });
+          expect(call.args[1]).to.deep.equal({
+            secret: 'keyboardcat'
+          });
+        });
+      
+        it('should yield token', function() {
+          expect(token).to.equal('eyJ0.eyJpc3Mi.dBjf');
+        });
+      }); // arity three with options
       
       describe('addressing to recipient', function() {
         var keyring = new Object();

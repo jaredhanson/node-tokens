@@ -5,14 +5,19 @@ var Sealer = require('../lib/sealer')
 describe('Sealer', function() {
   
   describe('signing to self', function() {
-    var seal = sinon.stub().yields(null, '2YotnFZFEjr1zCsicMWpAA');
+    var seal = function(claims, key, cb) {
+      process.nextTick(function() {
+        return cb(null, '2YotnFZFEjr1zCsicMWpAA');
+      });
+    }
+    var seal = sinon.spy(seal);
     var keyring = new Object();
     keyring.get = sinon.stub().yields(null, { secret: '12abcdef7890abcdef7890abcdef7890' });
     
     var token;
     
     before(function(done) {
-      var sealer = new Sealer(seal, keyring);
+      var sealer = new Sealer({ seal: seal }, null, keyring);
       sealer.seal({ beep: 'boop' }, { confidential: false }, function(err, t) {
         token = t;
         done(err);
@@ -28,7 +33,7 @@ describe('Sealer', function() {
       });
     });
     
-    it('should call seal implementatin', function() {
+    it('should call seal implementation', function() {
       expect(seal.callCount).to.equal(1);
       var call = seal.getCall(0);
       expect(call.args[0]).to.deep.equal({

@@ -60,62 +60,6 @@ describe('Tokens', function() {
       });
     }); // to self
     
-    describe('to self with ttl option', function() {
-      var keyring = new Object();
-      keyring.get = sinon.stub().yields(null, { secret: 'keyboardcat' });
-    
-      var jwt = {
-        seal: function(claims, key, options, cb) {
-          process.nextTick(function() {
-            return cb(null, 'eyJ0.eyJpc3Mi.dBjf');
-          });
-        }
-      };
-      
-      jwt.seal = sinon.spy(jwt.seal);
-      
-    
-      var tokens = new Tokens()
-        , token;
-      
-      tokens.use('application/jwt', jwt);
-      tokens._keyring = keyring;
-      
-      before(function(done) {
-        tokens.issue({ beep: 'boop' }, { ttl: 60000 }, function(err, t) {
-          token = t;
-          done(err);
-        });
-      });
-      
-      it('should query for key', function() {
-        expect(keyring.get.callCount).to.equal(1);
-        var call = keyring.get.getCall(0);
-        expect(call.args[0]).to.be.undefined;
-        expect(call.args[1]).to.deep.equal({
-          usage: 'encrypt'
-        });
-      });
-      
-      it('should seal message', function() {
-        expect(jwt.seal.callCount).to.equal(1);
-        var call = jwt.seal.getCall(0);
-        expect(call.args[0]).to.deep.equal({
-          beep: 'boop'
-        });
-        expect(call.args[1]).to.deep.equal({
-          secret: 'keyboardcat'
-        });
-        expect(call.args[2]).to.deep.equal({
-          ttl: 60000
-        });
-      });
-      
-      it('should yield token', function() {
-        expect(token).to.equal('eyJ0.eyJpc3Mi.dBjf');
-      });
-    }); // to self with ttl option
-    
     describe('to self with type option', function() {
       var keyring = new Object();
       keyring.get = sinon.stub().yields(null, { secret: 'keyboardcat' });
@@ -232,62 +176,6 @@ describe('Tokens', function() {
       });
     }); // to recipient
     
-    describe('to recipient with ttl option', function() {
-      var keyring = new Object();
-      keyring.get = sinon.stub().yields(null, { secret: 'keyboardcat' });
-    
-      var jwt = {
-        seal: function(claims, key, options, cb) {
-          process.nextTick(function() {
-            return cb(null, 'eyJ0.eyJpc3Mi.dBjf');
-          });
-        }
-      };
-      
-      jwt.seal = sinon.spy(jwt.seal);
-      
-    
-      var tokens = new Tokens()
-        , token;
-      
-      tokens.use('application/jwt', jwt);
-      tokens._keyring = keyring;
-      
-      before(function(done) {
-        tokens.issue({ beep: 'boop' }, 'example.com', { ttl: 60000 }, function(err, t) {
-          token = t;
-          done(err);
-        });
-      });
-      
-      it('should query for key', function() {
-        expect(keyring.get.callCount).to.equal(1);
-        var call = keyring.get.getCall(0);
-        expect(call.args[0]).to.equal('example.com');
-        expect(call.args[1]).to.deep.equal({
-          usage: 'encrypt'
-        });
-      });
-      
-      it('should seal message', function() {
-        expect(jwt.seal.callCount).to.equal(1);
-        var call = jwt.seal.getCall(0);
-        expect(call.args[0]).to.deep.equal({
-          beep: 'boop'
-        });
-        expect(call.args[1]).to.deep.equal({
-          secret: 'keyboardcat'
-        });
-        expect(call.args[2]).to.deep.equal({
-          ttl: 60000
-        });
-      });
-      
-      it('should yield token', function() {
-        expect(token).to.equal('eyJ0.eyJpc3Mi.dBjf');
-      });
-    }); // to recipient with ttl option
-    
     describe('to recipient with type option', function() {
       var keyring = new Object();
       keyring.get = sinon.stub().yields(null, { secret: 'keyboardcat' });
@@ -356,7 +244,7 @@ describe('Tokens', function() {
       keyring.get = sinon.stub().yields(null, { secret: 'keyboardcat' });
     
       var jwt = {
-        seal: function(claims, key, cb) {
+        seal: function(claims, key, options, cb) {
           process.nextTick(function() {
             return cb(null, 'eyJ0.eyJpc3Mi.dBjf');
           });
@@ -397,12 +285,69 @@ describe('Tokens', function() {
         expect(call.args[1]).to.deep.equal({
           secret: 'keyboardcat'
         });
+        expect(call.args[2]).to.deep.equal({});
       });
       
       it('should yield token', function() {
         expect(token).to.equal('eyJ0.eyJpc3Mi.dBjf');
       });
     }); // to recipient as object with default options
+    
+    describe('to recipient as object with ttl option', function() {
+      var keyring = new Object();
+      keyring.get = sinon.stub().yields(null, { secret: 'keyboardcat' });
+    
+      var jwt = {
+        seal: function(claims, key, options, cb) {
+          process.nextTick(function() {
+            return cb(null, 'eyJ0.eyJpc3Mi.dBjf');
+          });
+        }
+      };
+      
+      jwt.seal = sinon.spy(jwt.seal);
+      
+    
+      var tokens = new Tokens()
+        , token;
+      
+      tokens.use('application/jwt', jwt);
+      tokens._keyring = keyring;
+      
+      before(function(done) {
+        tokens.issue({ beep: 'boop' }, { id: 's6BhdRkqt3' }, { ttl: 60000 }, function(err, t) {
+          token = t;
+          done(err);
+        });
+      });
+      
+      it('should query for key', function() {
+        expect(keyring.get.callCount).to.equal(1);
+        var call = keyring.get.getCall(0);
+        expect(call.args[0]).to.deep.equal({ id: 's6BhdRkqt3' });
+        expect(call.args[1]).to.deep.equal({
+          usage: 'encrypt'
+        });
+      });
+      
+      it('should seal message', function() {
+        expect(jwt.seal.callCount).to.equal(1);
+        var call = jwt.seal.getCall(0);
+        expect(call.args[0]).to.deep.equal({
+          beep: 'boop'
+        });
+        expect(call.args[1]).to.deep.equal({
+          secret: 'keyboardcat'
+        });
+        expect(call.args[2]).to.deep.equal({
+          ttl: 60000
+        });
+      });
+      
+      it('should yield token', function() {
+        expect(token).to.equal('eyJ0.eyJpc3Mi.dBjf');
+      });
+    }); // to recipient as object with ttl option
     
     describe('to recipient as object with type option', function() {
       var keyring = new Object();
@@ -417,7 +362,7 @@ describe('Tokens', function() {
       };
       
       var iron = {
-        seal: function(claims, key, cb) {
+        seal: function(claims, key, options, cb) {
           process.nextTick(function() {
             return cb(null, 'Fe26.2**0cdd60*aOZLCK*g0ilND**05b894*R8yscV');
           });
@@ -461,6 +406,9 @@ describe('Tokens', function() {
         });
         expect(call.args[1]).to.deep.equal({
           secret: 'keyboardcat'
+        });
+        expect(call.args[2]).to.deep.equal({
+          type: 'application/fe26.2'
         });
       });
       

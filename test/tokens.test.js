@@ -354,7 +354,7 @@ describe('Tokens', function() {
       keyring.get = sinon.stub().yields(null, { secret: 'keyboardcat' });
     
       var jwt = {
-        seal: function(claims, key, cb) {
+        seal: function(claims, key, options, cb) {
           process.nextTick(function() {
             return cb(null, 'eyJ0.eyJpc3Mi.dBjf');
           });
@@ -426,7 +426,7 @@ describe('Tokens', function() {
         var access = {
           encode: function(msg) {
             return {
-              bep: msg.beep
+              scp: msg.scope
             };
           }
         };
@@ -434,7 +434,7 @@ describe('Tokens', function() {
         access.encode = sinon.spy(access.encode);
         
         var dialects = new Dialects();
-        dialects.use('application/jwt', access);
+        dialects.use('application/at+jwt', access);
     
         var jwt = {
           seal: function(claims, key, cb) {
@@ -454,7 +454,7 @@ describe('Tokens', function() {
         tokens._keyring = keyring;
       
         before(function(done) {
-          tokens.issue({ beep: 'boop' }, function(err, t) {
+          tokens.issue({ scope: 'profile' }, { dialect: 'application/at+jwt' }, function(err, t) {
             token = t;
             done(err);
           });
@@ -464,7 +464,7 @@ describe('Tokens', function() {
           expect(access.encode.callCount).to.equal(1);
           var call = access.encode.getCall(0);
           expect(call.args[0]).to.deep.equal({
-            beep: 'boop'
+            scope: 'profile'
           });
         });
       
@@ -481,7 +481,7 @@ describe('Tokens', function() {
           expect(jwt.seal.callCount).to.equal(1);
           var call = jwt.seal.getCall(0);
           expect(call.args[0]).to.deep.equal({
-            bep: 'boop'
+            scp: 'profile'
           });
           expect(call.args[1]).to.deep.equal({
             secret: 'keyboardcat'
@@ -500,7 +500,7 @@ describe('Tokens', function() {
         var access = {
           encode: function(msg, options) {
             return {
-              bep: msg.beep
+              scp: msg.scope
             };
           }
         };
@@ -508,7 +508,7 @@ describe('Tokens', function() {
         access.encode = sinon.spy(access.encode);
         
         var dialects = new Dialects();
-        dialects.use('application/jwt', access);
+        dialects.use('application/at+jwt', access);
     
         var jwt = {
           seal: function(claims, key, cb) {
@@ -528,7 +528,7 @@ describe('Tokens', function() {
         tokens._keyring = keyring;
       
         before(function(done) {
-          tokens.issue({ beep: 'boop' }, function(err, t) {
+          tokens.issue({ scope: 'profile' }, { dialect: 'application/at+jwt' }, function(err, t) {
             token = t;
             done(err);
           });
@@ -538,9 +538,11 @@ describe('Tokens', function() {
           expect(access.encode.callCount).to.equal(1);
           var call = access.encode.getCall(0);
           expect(call.args[0]).to.deep.equal({
-            beep: 'boop'
+            scope: 'profile'
           });
-          expect(call.args[1]).to.deep.equal({});
+          expect(call.args[1]).to.deep.equal({
+            dialect: 'application/at+jwt'
+          });
         });
       
         it('should query for key', function() {
@@ -556,7 +558,7 @@ describe('Tokens', function() {
           expect(jwt.seal.callCount).to.equal(1);
           var call = jwt.seal.getCall(0);
           expect(call.args[0]).to.deep.equal({
-            bep: 'boop'
+            scp: 'profile'
           });
           expect(call.args[1]).to.deep.equal({
             secret: 'keyboardcat'
@@ -575,8 +577,7 @@ describe('Tokens', function() {
         var access = {
           encode: function(msg, options) {
             return {
-              bep: msg.beep,
-              exp: 1544645174
+              scp: msg.scope
             };
           }
         };
@@ -584,7 +585,7 @@ describe('Tokens', function() {
         access.encode = sinon.spy(access.encode);
         
         var dialects = new Dialects();
-        dialects.use('application/jwt', access);
+        dialects.use('application/at+jwt', access);
     
         var jwt = {
           seal: function(claims, key, cb) {
@@ -604,7 +605,7 @@ describe('Tokens', function() {
         tokens._keyring = keyring;
       
         before(function(done) {
-          tokens.issue({ beep: 'boop' }, { ttl: 60000 }, function(err, t) {
+          tokens.issue({ scope: 'profile' }, { dialect: 'application/at+jwt', ttl: 60000 }, function(err, t) {
             token = t;
             done(err);
           });
@@ -614,9 +615,10 @@ describe('Tokens', function() {
           expect(access.encode.callCount).to.equal(1);
           var call = access.encode.getCall(0);
           expect(call.args[0]).to.deep.equal({
-            beep: 'boop'
+            scope: 'profile'
           });
           expect(call.args[1]).to.deep.equal({
+            dialect: 'application/at+jwt',
             ttl: 60000
           });
         });
@@ -634,8 +636,7 @@ describe('Tokens', function() {
           expect(jwt.seal.callCount).to.equal(1);
           var call = jwt.seal.getCall(0);
           expect(call.args[0]).to.deep.equal({
-            bep: 'boop',
-            exp: 1544645174
+            scp: 'profile'
           });
           expect(call.args[1]).to.deep.equal({
             secret: 'keyboardcat'

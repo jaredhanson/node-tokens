@@ -1189,13 +1189,7 @@ describe('Tokens', function() {
         var keyring = new Object();
         keyring.get = sinon.stub().yields(null, { secret: 'keyboardcat' }, { hostname: 'authorization-server.example.com' });
     
-        var access = {
-          encode: function(claims) {
-            return {
-              bep: claims.beep
-            };
-          },
-          
+        var base = {
           address: function(recipient, sender, options) {
             return {
               iss: sender.hostname,
@@ -1204,9 +1198,21 @@ describe('Tokens', function() {
             }
           }
         };
+    
+        var access = {
+          encode: function(msg) {
+            return {
+              scp: msg.scope
+            };
+          }
+        };
+        
+        base.address = sinon.spy(base.address);
+        access.encode = sinon.spy(access.encode);
         
         var dialects = new Dialects();
-        dialects.use('application/jwt', access);
+        dialects.use('application/jwt', base);
+        dialects.use('application/at+jwt', access);
     
         var jwt = {
           seal: function(claims, key, cb) {
@@ -1226,9 +1232,17 @@ describe('Tokens', function() {
         tokens._keyring = keyring;
       
         before(function(done) {
-          tokens.issue({ beep: 'boop' }, { hostname: 'rs.example.com' }, { identifierType: 'hostname' }, function(err, t) {
+          tokens.issue({ scope: 'profile' }, { hostname: 'rs.example.com' }, { dialect: 'application/at+jwt', identifierType: 'hostname' }, function(err, t) {
             token = t;
             done(err);
+          });
+        });
+        
+        it('should encode message', function() {
+          expect(access.encode.callCount).to.equal(1);
+          var call = access.encode.getCall(0);
+          expect(call.args[0]).to.deep.equal({
+            scope: 'profile'
           });
         });
       
@@ -1242,6 +1256,17 @@ describe('Tokens', function() {
             usage: 'encrypt'
           });
         });
+        
+        it('should address message', function() {
+          expect(base.address.callCount).to.equal(1);
+          var call = base.address.getCall(0);
+          expect(call.args[0]).to.deep.equal({ hostname: 'rs.example.com' });
+          expect(call.args[1]).to.deep.equal({ hostname: 'authorization-server.example.com' });
+          expect(call.args[2]).to.deep.equal({
+            dialect: 'application/at+jwt',
+            identifierType: 'hostname'
+          });
+        });
       
         it('should seal message', function() {
           expect(jwt.seal.callCount).to.equal(1);
@@ -1249,7 +1274,7 @@ describe('Tokens', function() {
           expect(call.args[0]).to.deep.equal({
             iss: 'authorization-server.example.com',
             aud: 'rs.example.com',
-            bep: 'boop',
+            scp: 'profile',
             identifier_type: 'hostname'
           });
           expect(call.args[1]).to.deep.equal({

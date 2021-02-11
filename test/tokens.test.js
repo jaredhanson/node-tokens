@@ -1393,6 +1393,120 @@ describe('Tokens', function() {
         });
       }); // addressing into header
       
+      describe('encoding options', function() {
+        var keyring = new Object();
+        keyring.get = sinon.stub().yields(null, { secret: 'keyboardcat' }, { id: 'https://authorization-server.example.com/' });
+    
+        var base = {
+          encode: function(msg, options) {
+            return {
+              exp: 1544645174
+            }
+          },
+          
+          address: function(recipient, sender) {
+            return {
+              iss: sender.id,
+              aud: recipient.id
+            }
+          }
+        };
+    
+        var access = {
+          encode: function(msg) {
+            return {
+              scp: msg.scope
+            };
+          }
+        };
+        
+        base.encode = sinon.spy(base.encode);
+        base.address = sinon.spy(base.address);
+        access.encode = sinon.spy(access.encode);
+        
+        var dialects = new Dialects();
+        dialects.use('application/jwt', base);
+        dialects.use('application/at+jwt', access);
+    
+        var jwt = {
+          seal: function(claims, key, cb) {
+            process.nextTick(function() {
+              return cb(null, 'eyJ0.eyJpc3Mi.dBjf');
+            });
+          }
+        };
+      
+        jwt.seal = sinon.spy(jwt.seal);
+      
+    
+        var tokens = new Tokens(dialects)
+          , token;
+      
+        tokens.use('application/jwt', jwt);
+        tokens._keyring = keyring;
+      
+        before(function(done) {
+          tokens.issue({ scope: 'profile' }, { id: 'https://rs.example.com/' }, { dialect: 'application/at+jwt', ttl: 60000 }, function(err, t) {
+            token = t;
+            done(err);
+          });
+        });
+        
+        it('should encode message', function() {
+          expect(access.encode.callCount).to.equal(1);
+          var call = access.encode.getCall(0);
+          expect(call.args[0]).to.deep.equal({
+            scope: 'profile'
+          });
+        });
+        
+        it('should encode type', function() {
+          expect(base.encode.callCount).to.equal(1);
+          var call = base.encode.getCall(0);
+          expect(call.args[0]).to.be.null;
+          expect(call.args[1]).to.deep.equal({
+            dialect: 'application/at+jwt',
+            ttl: 60000
+          });
+        });
+      
+        it('should query for key', function() {
+          expect(keyring.get.callCount).to.equal(1);
+          var call = keyring.get.getCall(0);
+          expect(call.args[0]).to.deep.equal({
+            id: 'https://rs.example.com/'
+          });
+          expect(call.args[1]).to.deep.equal({
+            usage: 'encrypt'
+          });
+        });
+        
+        it('should address message', function() {
+          expect(base.address.callCount).to.equal(1);
+          var call = base.address.getCall(0);
+          expect(call.args[0]).to.deep.equal({ id: 'https://rs.example.com/' });
+          expect(call.args[1]).to.deep.equal({ id: 'https://authorization-server.example.com/' });
+        });
+      
+        it('should seal message', function() {
+          expect(jwt.seal.callCount).to.equal(1);
+          var call = jwt.seal.getCall(0);
+          expect(call.args[0]).to.deep.equal({
+            iss: 'https://authorization-server.example.com/',
+            aud: 'https://rs.example.com/',
+            scp: 'profile',
+            exp: 1544645174
+          });
+          expect(call.args[1]).to.deep.equal({
+            secret: 'keyboardcat'
+          });
+        });
+      
+        it('should yield token', function() {
+          expect(token).to.equal('eyJ0.eyJpc3Mi.dBjf');
+        });
+      }); // encoding options
+      
     }); // with type dialects
     
   }); // #issue

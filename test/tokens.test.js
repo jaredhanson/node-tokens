@@ -1393,7 +1393,118 @@ describe('Tokens', function() {
         });
       }); // addressing into header
       
-      describe('encoding options', function() {
+      describe('encoding by base', function() {
+        var keyring = new Object();
+        keyring.get = sinon.stub().yields(null, { secret: 'keyboardcat' });
+    
+        var base = {
+          encode: function(msg) {
+            return {
+              sub: msg.subject
+            }
+          },
+          
+          address: function(recipient) {
+            return {
+              aud: recipient
+            }
+          }
+        }
+    
+        var access = {
+          encode: function(msg) {
+            return {
+              scp: msg.scope
+            };
+          }
+        };
+        
+        base.encode = sinon.spy(base.encode);
+        base.address = sinon.spy(base.address);
+        access.encode = sinon.spy(access.encode);
+        
+        var dialects = new Dialects();
+        dialects.use('application/jwt', base);
+        dialects.use('application/at+jwt', access);
+    
+        var jwt = {
+          seal: function(claims, key, cb) {
+            process.nextTick(function() {
+              return cb(null, 'eyJ0.eyJpc3Mi.dBjf');
+            });
+          }
+        };
+      
+        jwt.seal = sinon.spy(jwt.seal);
+      
+    
+        var tokens = new Tokens(dialects)
+          , token;
+      
+        tokens.use('application/jwt', jwt);
+        tokens._keyring = keyring;
+      
+        before(function(done) {
+          tokens.issue({ subject: 'alice@example.com', scope: 'profile' }, 'example.com', { dialect: 'application/at+jwt'}, function(err, t) {
+            token = t;
+            done(err);
+          });
+        });
+        
+        it('should encode message with type', function() {
+          expect(access.encode.callCount).to.equal(1);
+          var call = access.encode.getCall(0);
+          expect(call.args[0]).to.deep.equal({
+            subject: 'alice@example.com',
+            scope: 'profile'
+          });
+        });
+        
+        it('should encode message with dialect', function() {
+          expect(access.encode.callCount).to.equal(1);
+          var call = access.encode.getCall(0);
+          expect(call.args[0]).to.deep.equal({
+            subject: 'alice@example.com',
+            scope: 'profile'
+          });
+        });
+      
+        it('should query for key', function() {
+          expect(keyring.get.callCount).to.equal(1);
+          var call = keyring.get.getCall(0);
+          expect(call.args[0]).to.equal('example.com');
+          expect(call.args[1]).to.deep.equal({
+            usage: 'encrypt'
+          });
+        });
+        
+        it('should address message', function() {
+          expect(base.address.callCount).to.equal(1);
+          var call = base.address.getCall(0);
+          expect(call.args[0]).to.equal('example.com')
+        });
+      
+        it('should seal message', function() {
+          expect(jwt.seal.callCount).to.equal(1);
+          var call = jwt.seal.getCall(0);
+          expect(call.args[0]).to.deep.equal({
+            aud: 'example.com',
+            sub: 'alice@example.com',
+            scp: 'profile'
+          });
+          expect(call.args[1]).to.deep.equal({
+            secret: 'keyboardcat'
+          });
+        });
+      
+        it('should yield token', function() {
+          expect(token).to.equal('eyJ0.eyJpc3Mi.dBjf');
+        });
+      }); // encoding by base
+      
+      // TODO: Encoding message to headers
+      
+      describe.skip('encoding options', function() {
         var keyring = new Object();
         keyring.get = sinon.stub().yields(null, { secret: 'keyboardcat' }, { id: 'https://authorization-server.example.com/' });
     

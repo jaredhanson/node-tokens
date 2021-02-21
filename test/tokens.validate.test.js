@@ -43,6 +43,15 @@ describe('Tokens', function() {
         });
       });
       
+      it('should query for key', function() {
+        expect(keyring.get.callCount).to.equal(1);
+        var call = keyring.get.getCall(0);
+        expect(call.args[0]).to.be.undefined;
+        expect(call.args[1]).to.deep.equal({
+          usage: 'decrypt'
+        });
+      });
+      
       it('should yield token', function() {
         expect(token.claims).to.deep.equal({
           beep: 'boop'

@@ -27,7 +27,8 @@ describe('Tokens', function() {
         }
       };
       
-      jwt.seal = sinon.spy(jwt.seal);
+      jwt.parse = sinon.spy(jwt.parse);
+      jwt.unseal = sinon.spy(jwt.unseal);
       
     
       var tokens = new Tokens()
@@ -43,12 +44,27 @@ describe('Tokens', function() {
         });
       });
       
+      it('should parse token', function() {
+        expect(jwt.parse.callCount).to.equal(1);
+        var call = jwt.parse.getCall(0);
+        expect(call.args[0]).to.equal('eyJ0.eyJpc3Mi.dBjf');
+      });
+      
       it('should query for key', function() {
         expect(keyring.get.callCount).to.equal(1);
         var call = keyring.get.getCall(0);
         expect(call.args[0]).to.be.undefined;
         expect(call.args[1]).to.deep.equal({
           usage: 'decrypt'
+        });
+      });
+      
+      it('should unseal token', function() {
+        expect(jwt.unseal.callCount).to.equal(1);
+        var call = jwt.unseal.getCall(0);
+        expect(call.args[0]).to.equal('eyJ0.eyJpc3Mi.dBjf');
+        expect(call.args[1]).to.deep.equal({
+          secret: 'keyboardcat'
         });
       });
       

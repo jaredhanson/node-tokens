@@ -219,14 +219,14 @@ describe('Tokens', function() {
     
     describe('with dialects', function() {
       
-      describe.skip('from issuer as object', function() {
+      describe('from issuer as object', function() {
         var keyring = new Object();
         keyring.get = sinon.stub().yields(null, { secret: 'keyboardcat' });
     
         var access = {
-          decode: function(msg) {
+          decode: function(claims) {
             return {
-              scp: msg.scope
+              scope: claims.scp
             };
           }
         };
@@ -300,7 +300,7 @@ describe('Tokens', function() {
       
         it('should yield token', function() {
           expect(token.claims).to.deep.equal({
-            scp: 'profile'
+            scope: 'profile'
           });
         });
       }); // from issuer as object

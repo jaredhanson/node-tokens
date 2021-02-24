@@ -82,7 +82,7 @@ describe('Tokens', function() {
       var jwt = {
         parse: function(token) {
           return {
-            issuer: 'example.com',
+            issuer: 'as.example.com',
             key: {
               usage: 'decrypt'
             }
@@ -122,7 +122,7 @@ describe('Tokens', function() {
       it('should query for key', function() {
         expect(keyring.get.callCount).to.equal(1);
         var call = keyring.get.getCall(0);
-        expect(call.args[0]).to.equal('example.com');
+        expect(call.args[0]).to.equal('as.example.com');
         expect(call.args[1]).to.deep.equal({
           usage: 'decrypt'
         });
@@ -152,7 +152,7 @@ describe('Tokens', function() {
         parse: function(token) {
           return {
             issuer: {
-              identifier: 'https://example.com/'
+              identifier: 'https://as.example.com/'
             },
             key: {
               usage: 'decrypt'
@@ -194,7 +194,7 @@ describe('Tokens', function() {
         expect(keyring.get.callCount).to.equal(1);
         var call = keyring.get.getCall(0);
         expect(call.args[0]).to.deep.equal({
-          identifier: 'https://example.com/' 
+          identifier: 'https://as.example.com/' 
         });
         expect(call.args[1]).to.deep.equal({
           usage: 'decrypt'
@@ -239,9 +239,6 @@ describe('Tokens', function() {
         var jwt = {
           parse: function(token) {
             return {
-              issuer: {
-                identifier: 'https://example.com/'
-              },
               key: {
                 usage: 'decrypt'
               }
@@ -281,9 +278,7 @@ describe('Tokens', function() {
         it('should query for key', function() {
           expect(keyring.get.callCount).to.equal(1);
           var call = keyring.get.getCall(0);
-          expect(call.args[0]).to.deep.equal({
-            identifier: 'https://example.com/' 
-          });
+          expect(call.args[0]).to.be.undefined;
           expect(call.args[1]).to.deep.equal({
             usage: 'decrypt'
           });

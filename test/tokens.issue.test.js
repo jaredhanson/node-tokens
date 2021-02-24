@@ -145,7 +145,7 @@ describe('Tokens', function() {
       tokens._keyring = keyring;
       
       before(function(done) {
-        tokens.issue({ beep: 'boop' }, 'example.com', function(err, t) {
+        tokens.issue({ beep: 'boop' }, 'rs.example.com', function(err, t) {
           token = t;
           done(err);
         });
@@ -154,7 +154,7 @@ describe('Tokens', function() {
       it('should query for key', function() {
         expect(keyring.get.callCount).to.equal(1);
         var call = keyring.get.getCall(0);
-        expect(call.args[0]).to.equal('example.com');
+        expect(call.args[0]).to.equal('rs.example.com');
         expect(call.args[1]).to.deep.equal({
           usage: 'encrypt'
         });
@@ -208,7 +208,7 @@ describe('Tokens', function() {
       tokens._keyring = keyring;
       
       before(function(done) {
-        tokens.issue({ beep: 'boop' }, 'example.com', { type: 'application/fe26.2' }, function(err, t) {
+        tokens.issue({ beep: 'boop' }, 'rs.example.com', { type: 'application/fe26.2' }, function(err, t) {
           token = t;
           done(err);
         });
@@ -217,7 +217,7 @@ describe('Tokens', function() {
       it('should query for key', function() {
         expect(keyring.get.callCount).to.equal(1);
         var call = keyring.get.getCall(0);
-        expect(call.args[0]).to.equal('example.com');
+        expect(call.args[0]).to.equal('rs.example.com');
         expect(call.args[1]).to.deep.equal({
           usage: 'encrypt'
         });
@@ -261,7 +261,7 @@ describe('Tokens', function() {
       tokens._keyring = keyring;
       
       before(function(done) {
-        tokens.issue({ beep: 'boop' }, { id: 's6BhdRkqt3' }, {}, function(err, t) {
+        tokens.issue({ beep: 'boop' }, { identifier: 'https://rs.example.com/' }, {}, function(err, t) {
           token = t;
           done(err);
         });
@@ -270,7 +270,9 @@ describe('Tokens', function() {
       it('should query for key', function() {
         expect(keyring.get.callCount).to.equal(1);
         var call = keyring.get.getCall(0);
-        expect(call.args[0]).to.deep.equal({ id: 's6BhdRkqt3' });
+        expect(call.args[0]).to.deep.equal({
+          identifier: 'https://rs.example.com/'
+        });
         expect(call.args[1]).to.deep.equal({
           usage: 'encrypt'
         });
@@ -315,7 +317,7 @@ describe('Tokens', function() {
       tokens._keyring = keyring;
       
       before(function(done) {
-        tokens.issue({ beep: 'boop' }, { id: 's6BhdRkqt3' }, { ttl: 60000 }, function(err, t) {
+        tokens.issue({ beep: 'boop' }, { identifier: 'https://rs.example.com/' }, { ttl: 60000 }, function(err, t) {
           token = t;
           done(err);
         });
@@ -324,7 +326,9 @@ describe('Tokens', function() {
       it('should query for key', function() {
         expect(keyring.get.callCount).to.equal(1);
         var call = keyring.get.getCall(0);
-        expect(call.args[0]).to.deep.equal({ id: 's6BhdRkqt3' });
+        expect(call.args[0]).to.deep.equal({
+          identifier: 'https://rs.example.com/'
+        });
         expect(call.args[1]).to.deep.equal({
           usage: 'encrypt'
         });
@@ -381,7 +385,7 @@ describe('Tokens', function() {
       tokens._keyring = keyring;
       
       before(function(done) {
-        tokens.issue({ beep: 'boop' }, { id: 's6BhdRkqt3' }, { type: 'application/fe26.2' }, function(err, t) {
+        tokens.issue({ beep: 'boop' }, { identifier: 'https://rs.example.com/' }, { type: 'application/fe26.2' }, function(err, t) {
           token = t;
           done(err);
         });
@@ -391,7 +395,7 @@ describe('Tokens', function() {
         expect(keyring.get.callCount).to.equal(1);
         var call = keyring.get.getCall(0);
         expect(call.args[0]).to.deep.equal({
-          id: 's6BhdRkqt3'
+          identifier: 'https://rs.example.com/'
         });
         expect(call.args[1]).to.deep.equal({
           usage: 'encrypt'

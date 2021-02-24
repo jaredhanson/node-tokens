@@ -497,84 +497,7 @@ describe('Tokens', function() {
         });
       }); // encoding message
       
-      describe('arity two', function() {
-        var keyring = new Object();
-        keyring.get = sinon.stub().yields(null, { secret: 'keyboardcat' });
-    
-        var access = {
-          encode: function(msg, options) {
-            return {
-              scp: msg.scope
-            };
-          }
-        };
-        
-        access.encode = sinon.spy(access.encode);
-        
-        var dialects = new Dialects();
-        dialects.use('application/at+jwt', access);
-    
-        var jwt = {
-          seal: function(claims, key, cb) {
-            process.nextTick(function() {
-              return cb(null, 'eyJ0.eyJpc3Mi.dBjf');
-            });
-          }
-        };
-      
-        jwt.seal = sinon.spy(jwt.seal);
-      
-    
-        var tokens = new Tokens(dialects)
-          , token;
-      
-        tokens.use('application/jwt', jwt);
-        tokens._keyring = keyring;
-      
-        before(function(done) {
-          tokens.issue({ scope: 'profile' }, { dialect: 'application/at+jwt' }, function(err, t) {
-            token = t;
-            done(err);
-          });
-        });
-        
-        it('should encode message', function() {
-          expect(access.encode.callCount).to.equal(1);
-          var call = access.encode.getCall(0);
-          expect(call.args[0]).to.deep.equal({
-            scope: 'profile'
-          });
-          expect(call.args[1]).to.deep.equal({
-            dialect: 'application/at+jwt'
-          });
-        });
-      
-        it('should query for key', function() {
-          expect(keyring.get.callCount).to.equal(1);
-          var call = keyring.get.getCall(0);
-          expect(call.args[0]).to.be.undefined;
-          expect(call.args[1]).to.deep.equal({
-            usage: 'encrypt'
-          });
-        });
-      
-        it('should seal message', function() {
-          expect(jwt.seal.callCount).to.equal(1);
-          var call = jwt.seal.getCall(0);
-          expect(call.args[0]).to.deep.equal({
-            scp: 'profile'
-          });
-          expect(call.args[1]).to.deep.equal({
-            secret: 'keyboardcat'
-          });
-        });
-      
-        it('should yield token', function() {
-          expect(token).to.equal('eyJ0.eyJpc3Mi.dBjf');
-        });
-      }); // arity two
-      
-      describe('arity two with options', function() {
+      describe('encoding message and options', function() {
         var keyring = new Object();
         keyring.get = sinon.stub().yields(null, { secret: 'keyboardcat' });
     
@@ -650,7 +573,7 @@ describe('Tokens', function() {
         it('should yield token', function() {
           expect(token).to.equal('eyJ0.eyJpc3Mi.dBjf');
         });
-      }); // arity two with options
+      }); // encoding message and options
       
       describe('arity three', function() {
         var keyring = new Object();

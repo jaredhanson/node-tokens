@@ -423,7 +423,7 @@ describe('Tokens', function() {
     
     describe('with dialects', function() {
       
-      describe('arity one', function() {
+      describe('encoding message', function() {
         var keyring = new Object();
         keyring.get = sinon.stub().yields(null, { secret: 'keyboardcat' });
     
@@ -495,7 +495,7 @@ describe('Tokens', function() {
         it('should yield token', function() {
           expect(token).to.equal('eyJ0.eyJpc3Mi.dBjf');
         });
-      }); // arity one
+      }); // encoding message
       
       describe('arity two', function() {
         var keyring = new Object();

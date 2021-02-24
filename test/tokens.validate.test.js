@@ -219,7 +219,7 @@ describe('Tokens', function() {
     
     describe('with dialects', function() {
       
-      describe('from issuer as object', function() {
+      describe('decoding claims', function() {
         var keyring = new Object();
         keyring.get = sinon.stub().yields(null, { secret: 'keyboardcat' });
     
@@ -292,13 +292,21 @@ describe('Tokens', function() {
             secret: 'keyboardcat'
           });
         });
+        
+        it('should decode claims', function() {
+          expect(access.decode.callCount).to.equal(1);
+          var call = access.decode.getCall(0);
+          expect(call.args[0]).to.deep.equal({
+            scp: 'profile'
+          });
+        });
       
         it('should yield token', function() {
           expect(token.claims).to.deep.equal({
             scope: 'profile'
           });
         });
-      }); // from issuer as object
+      }); // decoding claims
       
     }); // with dialects
     
